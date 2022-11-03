@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.ServiceModel;
@@ -28,5 +29,22 @@ namespace Entidades
         public String CorreoElectronico  { get { return correoElectronico; } set { correoElectronico = value; } }
         [DataMember]
         public String Contraseña { get { return contraseña; } set { contraseña = value; } }
+
+
     }
+
+    [DataContract]
+    public class Chat
+    {
+      
+       public DateTime tiempoEnvio { get; set; }
+
+       public string remitente { get; set; }
+
+       public string mensajeEnviado { get; set; }
+
+
+    }
+
+   
 }
