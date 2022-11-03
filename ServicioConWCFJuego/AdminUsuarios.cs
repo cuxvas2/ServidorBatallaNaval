@@ -13,6 +13,11 @@ namespace ServicioConWCFJuego
     // mando "Rename" del menú "Refactorizar" para cambiar el nombre de clase "Service1" en el código y en el archivo de configuración a la vez.
     public class AdminUsuarios : IAdminiUsuarios
     {
+        public bool cambiarContraseña(Jugador jugador)
+        {
+            return true;
+        }
+
         public bool iniciarSesion(string usuario, string contraseña)
         {
             AccesoADatos.consultasUsuario consultas = new consultasUsuario();

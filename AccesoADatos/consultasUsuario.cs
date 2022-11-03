@@ -30,12 +30,8 @@ namespace AccesoADatos
             int modificado = 0;
             using(var contexto = new BatallaNavalDbEntities())
             {
-                //Aqui se generar un objeto Jugadores de la base de datos
                 Jugadores jugador_db = new Jugadores();
-                jugador_db.Apodo = jugadorEntidad.Apodo;
-                jugador_db.Contraseña = jugadorEntidad.Contraseña;
-                jugador_db.CorreoElectronico = jugadorEntidad.CorreoElectronico;
-                jugador_db.IdJugador = jugadorEntidad.IdJugador;
+                jugador_db = convertirJugadorAJugadores(jugadorEntidad);
 
                 contexto.Jugadores.Add(jugador_db);
                 modificado = contexto.SaveChanges();
@@ -45,6 +41,32 @@ namespace AccesoADatos
                 registro = true;
             }
             return registro;
+        }
+
+        public Boolean cambiarContraseña(Jugador jugadorEntidad)
+        {
+            Boolean cambioExitoso = false;
+            using(var contexto = new BatallaNavalDbEntities())
+            {
+                Jugadores jugador_db = new Jugadores();
+                jugador_db = convertirJugadorAJugadores(jugadorEntidad);
+
+                contexto.Jugadores.Add(jugador_db);
+
+                cambioExitoso = true;
+                return cambioExitoso;
+            }
+        }
+
+        private Jugadores convertirJugadorAJugadores(Jugador jugadorEntidad)
+        {
+            Jugadores jugador_db = new Jugadores();
+            jugador_db.Apodo = jugadorEntidad.Apodo;
+            jugador_db.Contraseña = jugadorEntidad.Contraseña;
+            jugador_db.CorreoElectronico = jugadorEntidad.CorreoElectronico;
+            jugador_db.IdJugador = jugadorEntidad.IdJugador;
+
+            return jugador_db;
         }
     }
 }

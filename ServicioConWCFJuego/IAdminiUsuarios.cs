@@ -16,6 +16,8 @@ namespace ServicioConWCFJuego
         Boolean iniciarSesion(String usuario, String contraseña);
         [OperationContract]
         Boolean registarUsuario(Jugador jugador);
+        [OperationContract]
+        Boolean cambiarContraseña(Jugador jugador);
 
         // TODO: agregue aquí sus operaciones de servicio
     }
