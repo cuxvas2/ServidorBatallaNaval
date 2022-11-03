@@ -45,8 +45,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AdminSocial.cs" />
+    <Compile Include="IAdminiSocial.cs" />
     <Compile Include="IAdminiUsuarios.cs" />
-    <Compile Include="IAdminSocial.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="AdminUsuarios.cs" />
   </ItemGroup>
