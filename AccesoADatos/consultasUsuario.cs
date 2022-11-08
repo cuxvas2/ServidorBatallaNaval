@@ -52,8 +52,13 @@ namespace AccesoADatos
                 jugador_db = convertirJugadorAJugadores(jugadorEntidad);
 
                 contexto.Jugadores.Add(jugador_db);
+                int actualizacionExitosa = contexto.SaveChanges();
 
-                cambioExitoso = true;
+                if (actualizacionExitosa > 0)
+                {
+                    cambioExitoso = true;
+                    
+                }
                 return cambioExitoso;
             }
         }

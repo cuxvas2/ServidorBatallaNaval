@@ -10,33 +10,38 @@ using System.Text;
 namespace ServicioConWCFJuego
 {
 
-        [ServiceContract(CallbackContract = typeof(IChatCallback), SessionMode = SessionMode.Required)]
-        public interface IChat
-        {
-            [OperationContract(IsInitiating = true)]
-            bool Conectado(Jugador jugador);
+    [ServiceContract(CallbackContract = typeof(IChatCallback), SessionMode = SessionMode.Required)]
+    public interface IAdminiSocial
+    {
+        [OperationContract(IsInitiating = true)]
+        bool Conectado(Jugador jugador);
 
-            [OperationContract(IsOneWay = true)]
-            void estaEscribiendo(Jugador jugador);
+        [OperationContract(IsOneWay = true)]
+        void estaEscribiendo(Jugador jugador);
 
-            [OperationContract(IsOneWay = true, IsTerminating = true)]
-            void desconectado(Jugador jugador);
+        [OperationContract(IsOneWay = true, IsTerminating = true)]
+        void desconectado(Jugador jugador);
 
-        }
+        [OperationContract(IsOneWay = true)]
+        void enviarMensaje(string mensaje);
 
-        [ServiceContract]
-        public interface IChatCallback
-        {
-            [OperationContract(IsOneWay = true)]
-            void actualizarJugadores(List<Jugador> jugadores);
+    }
 
-            [OperationContract(IsOneWay = true)]
-            void unionDeJugador(Jugador jugador);
+    [ServiceContract]
+    public interface IChatCallback
+    {
+        [OperationContract(IsOneWay = true)]
+        void actualizarJugadores(List<Jugador> jugadores);
 
-            [OperationContract(IsOneWay = true)]
-            void jugadorSeFue(Jugador jugador);
-            [OperationContract(IsOneWay = true)]
-            void escribiendoEnCallback(Jugador jugador);
+        [OperationContract(IsOneWay = true)]
+        void unionDeJugador(Jugador jugador);
+
+        [OperationContract(IsOneWay = true)]
+        void jugadorSeFue(Jugador jugador);
+        [OperationContract(IsOneWay = true)]
+        void escribiendoEnCallback(Jugador jugador);
+        [OperationContract]
+        void recibirMensaje(String response);
 
 
     }
