@@ -13,8 +13,8 @@ namespace ServicioConWCFJuego
     [ServiceContract(CallbackContract = typeof(IChatCallback), SessionMode = SessionMode.Required)]
     public interface IAdminiSocial
     {
-        [OperationContract(IsInitiating = true)]
-        bool Conectado(Jugador jugador);
+        [OperationContract(IsOneWay = true)]
+        void Conectado(Jugador jugador);
 
         [OperationContract(IsOneWay = true)]
         void estaEscribiendo(Jugador jugador);

@@ -15,7 +15,7 @@ namespace AccesoADatos
             int encontrados = 0;
             using(var contexto = new BatallaNavalDbEntities())
             {
-                encontrados = contexto.Jugadores.Where(s => s.Apodo == usuario && s.Contraseña == contraseña).Count();
+                encontrados = contexto.Jugadores.Where(s => s.CorreoElectronico == usuario && s.Contraseña == contraseña).Count();
             }
             if(encontrados > 0)
             {

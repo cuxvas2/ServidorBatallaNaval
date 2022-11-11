@@ -5,7 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.ServiceModel;
+using System.ServiceModel.Channels;
 using System.Text;
+using System.Timers;
 
 namespace ServicioConWCFJuego
 {
@@ -54,8 +56,9 @@ namespace ServicioConWCFJuego
         }
 
         object syncObj = new object();
-        public bool Conectado(Jugador jugador)
-        { 
+        public void Conectado(Jugador jugador)
+        {
+            bool bandera = false;
             if (!jugadores.ContainsValue(CurrentCallback) && !buscarJugadoresPorNombre(jugador.Apodo))
             {
                 lock (syncObj)
@@ -66,23 +69,27 @@ namespace ServicioConWCFJuego
                     foreach (Jugador key in jugadores.Keys)
                     {
                         IChatCallback callback = jugadores[key];
+                        Console.WriteLine(key.CorreoElectronico);
                         try
                         {
-                            callback.actualizarJugadores(listaJugadores);
+                            //callback.actualizarJugadores(listaJugadores);
                             callback.unionDeJugador(jugador);
+                            bandera = true;
                         }
                         catch
                         {
                             jugadores.Remove(key);
-                            return false;
+                            
                         }
+                        bandera = true;
 
                     }
 
                 }
-                return true;
+               
             }
-            return false;
+            Console.WriteLine(" El metodo regresa " + bandera);
+            
         }
 
         public void desconectado(Jugador jugador)
@@ -137,5 +144,28 @@ namespace ServicioConWCFJuego
             }
         }
 
+    }
+
+    public partial class AdminUsuarios : IAdminiPartida
+    {
+        Dictionary<String, IPartidaCallback> jugadoresEnPartida = new Dictionary<String, IPartidaCallback>();
+
+        public bool tiro(int[] coordenadas, string contricante)
+        {
+            IPartidaCallback callback = jugadoresEnPartida[contricante];
+            bool aserta = callback.insertarDisparo(coordenadas);
+            return aserta;
+        }
+
+        public void temporizadorTurnos()
+        {
+            Timer timer = new Timer(30000);
+            timer.Elapsed += EventoElapsed;
+            timer.Start();
+        }
+        private static void EventoElapsed(object sender, ElapsedEventArgs e)
+        {
+            //Que hacer cuando llegue la cuenta regresiva a 0?
+        }
     }
 }
