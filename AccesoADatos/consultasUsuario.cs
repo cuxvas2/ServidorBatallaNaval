@@ -73,5 +73,26 @@ namespace AccesoADatos
 
             return jugador_db;
         }
+
+        public Jugador buscarJugadorPorCorreo(string correo)
+        {
+            using (var contexto = new BatallaNavalDbEntities())
+            {
+                Jugadores jugador_db = new Jugadores();
+
+                jugador_db = contexto.Jugadores.Where(x=>x.CorreoElectronico==correo).FirstOrDefault();
+
+                Jugador jugador = new Jugador();
+
+                if (jugador_db != null)
+                {
+                    jugador.Apodo = jugador_db.Apodo;
+                    jugador.Contraseña = jugador_db.Contraseña;
+                    jugador.CorreoElectronico = jugador_db.CorreoElectronico;
+                    jugador.IdJugador = jugador_db.IdJugador;
+                }
+                return jugador;
+            }
+        }
     }
 }

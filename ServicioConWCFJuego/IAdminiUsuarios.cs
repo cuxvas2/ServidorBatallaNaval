@@ -19,7 +19,8 @@ namespace ServicioConWCFJuego
         Boolean registarUsuario(Jugador jugador);
         [OperationContract]
         Boolean cambiarContraseña(Jugador jugador);
-
+        [OperationContract]
+        Jugador recuperarJugadorPorCorreo(string correoElectronico);
         // TODO: agregue aquí sus operaciones de servicio
     }
 

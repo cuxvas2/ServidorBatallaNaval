@@ -23,7 +23,11 @@ namespace ServicioConWCFJuego
         void desconectado(Jugador jugador);
 
         [OperationContract(IsOneWay = true)]
-        void enviarMensaje(string mensaje);
+        void enviarMensaje(Chat mensaje);
+        [OperationContract(IsOneWay = true)]
+        void crearSala();
+        [OperationContract(IsOneWay = true)]
+        void unirseASala(string sala, string jugador);
 
     }
 
@@ -32,16 +36,18 @@ namespace ServicioConWCFJuego
     {
         [OperationContract(IsOneWay = true)]
         void actualizarJugadores(List<Jugador> jugadores);
-
         [OperationContract(IsOneWay = true)]
         void unionDeJugador(Jugador jugador);
-
         [OperationContract(IsOneWay = true)]
         void jugadorSeFue(Jugador jugador);
         [OperationContract(IsOneWay = true)]
         void escribiendoEnCallback(Jugador jugador);
         [OperationContract]
-        void recibirMensaje(String response);
+        void recibirMensaje(Chat respuesta);
+        [OperationContract]
+        void recibirCodigoSala(String codigo);
+        [OperationContract]
+        void jugadorSeUnio(string jugador, string sala, bool seUnio);
 
 
     }

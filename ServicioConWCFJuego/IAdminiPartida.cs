@@ -13,6 +13,12 @@ namespace ServicioConWCFJuego
     {
         [OperationContract]
         bool tiro(int[] coordenadas, string contricante);
+        [OperationContract]
+        void IniciarPartida(string jugador);
+        [OperationContract(IsOneWay = true)]
+        void TerminarPartida(string jugador);
+        [OperationContract(IsOneWay = true)]
+        void PrimerTiro(string jugador1, string jugador2);
     }
 
     [ServiceContract]
@@ -20,5 +26,9 @@ namespace ServicioConWCFJuego
     {
         [OperationContract]
         bool insertarDisparo(int[] coordenadas);
+        [OperationContract]
+        void IniciarPartidaCallback(bool inicar);
+        [OperationContract]
+        void PrimerTiroCallback(bool jugadorInicio);
     }
 }

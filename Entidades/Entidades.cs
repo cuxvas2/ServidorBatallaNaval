@@ -36,12 +36,15 @@ namespace Entidades
     [DataContract]
     public class Chat
     {
-      
-       public DateTime tiempoEnvio { get; set; }
-
-       public string remitente { get; set; }
-
-       public string mensajeEnviado { get; set; }
+        private string sala;
+        private string remitente;
+        private string mensajeEnviado;
+        [DataMember]
+        public string Sala { get { return sala; } set { sala = value; } }
+        [DataMember]
+        public string Remitente { get { return remitente; } set { remitente = value; } }
+        [DataMember]
+        public string MensajeEnviado { get { return mensajeEnviado; } set { mensajeEnviado = value; } }
 
 
     }
