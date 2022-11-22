@@ -15,7 +15,10 @@ namespace ServicioConWCFJuego
     // mando "Rename" del menú "Refactorizar" para cambiar el nombre de clase "Service1" en el código y en el archivo de configuración a la vez.
     [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Multiple, InstanceContextMode = InstanceContextMode.Single)]
     public partial class AdminUsuarios : IAdminiUsuarios
+
     {
+        private Dictionary<String, Jugador> jugadoresConectados = new Dictionary<string, Jugador>();
+
         public bool cambiarContraseña(Jugador jugador)
         {
             return true;
@@ -23,9 +26,14 @@ namespace ServicioConWCFJuego
 
         public bool iniciarSesion(string usuario, string contraseña)
         {
-            AccesoADatos.consultasUsuario consultas = new consultasUsuario();
             Boolean estaRegistrado = false;
-            estaRegistrado = consultas.buscarJudadorRegistrado(usuario, contraseña);
+            if (!jugadoresConectados.ContainsKey(usuario))
+            {
+                AccesoADatos.consultasUsuario consultas = new consultasUsuario();
+                
+                estaRegistrado = consultas.buscarJudadorRegistrado(usuario, contraseña);
+                
+            }
             return estaRegistrado;
         }
 
@@ -35,6 +43,7 @@ namespace ServicioConWCFJuego
             Jugador jugador = new Jugador();
             //Validar que sea un correo electronico válido
             jugador = consultas.buscarJugadorPorCorreo(correoElectronico);
+            jugadoresConectados.Add(jugador.CorreoElectronico, jugador);
             return jugador;
         }
 
@@ -42,7 +51,7 @@ namespace ServicioConWCFJuego
         {
             AccesoADatos.consultasUsuario consultas = new consultasUsuario();
             Boolean registro = false;
-            registro = consultas.registrarUsuario(jugador); //Que tipo de objetos se pondria?
+            registro = consultas.registrarUsuario(jugador);
             return registro;
         }
 
@@ -55,7 +64,11 @@ namespace ServicioConWCFJuego
 
         private List<Jugador> listaJugadores = new List<Jugador>();
 
-        public Dictionary<String, List<IChatCallback>> listaSalas = new Dictionary<string, List<IChatCallback>>();
+        private Dictionary<String, List<IChatCallback>> listaSalas = new Dictionary<string, List<IChatCallback>>();
+
+        private Dictionary<String, List<Jugador>> jugadoresEnSala = new Dictionary<string, List<Jugador>>();
+
+
         public IChatCallback CurrentCallback
         {
             get
@@ -157,18 +170,21 @@ namespace ServicioConWCFJuego
             
         }
 
-        public void crearSala()
+        public void crearSala(Jugador jugador)
         {
             String codigo = generarCodigo();
             List<IChatCallback> listaJugador = new List<IChatCallback>();
 
             while (this.listaSalas.TryGetValue(codigo, out listaJugador))
             {
-                generarCodigo();
+                codigo = generarCodigo();
             }
-            
+
             List<IChatCallback> listaJugadores = new List<IChatCallback>();
             listaJugadores.Add(CurrentCallback);
+            List<Jugador> jugadores = new List<Jugador>();
+            jugadores.Add(jugador);
+            jugadoresEnSala.Add(codigo, jugadores);
             this.listaSalas.Add(codigo,listaJugadores);
             OperationContext.Current.GetCallbackChannel<IChatCallback>().recibirCodigoSala(codigo);
         }
@@ -186,25 +202,93 @@ namespace ServicioConWCFJuego
             return codigo;
         }
 
-        public void unirseASala(string sala, string jugador)
+        public void unirseASala(string sala, Jugador jugador)
         {
             List<IChatCallback> listaJugador = new List<IChatCallback>();
+            Jugador jugadorcontricante = new Jugador();
             if(this.listaSalas.ContainsKey(sala))
             {
                 listaJugador = this.listaSalas[sala];
+                listaJugador.Add(CurrentCallback);
                 foreach (IChatCallback callback in listaJugador)
                 {
                     //Esto hace la exceocion System.TimeoutException:
                     callback.jugadorSeUnio(jugador, sala, true);
                 }
-                listaJugador.Add(CurrentCallback);
+                jugadorcontricante = buscarJugadorContricanteEnSalas(sala, jugador);
+                CurrentCallback.jugadorSeUnio(jugadorcontricante, sala, true);
                 this.listaSalas[sala] = listaJugador;
-                CurrentCallback.jugadorSeUnio("Jugador Lider", sala, true);
                 
             }
             else
             {
-                CurrentCallback.jugadorSeUnio("", sala,  false);
+                CurrentCallback.jugadorSeUnio(jugadorcontricante, sala,  false);
+            }
+        }
+
+        private Jugador buscarJugadorContricanteEnSalas(string sala, Jugador jugador)
+        {
+            Jugador jugadorContricante = new Jugador();
+            List<Jugador> jugadores = new List<Jugador>();
+            if (this.jugadoresEnSala.ContainsKey(sala))
+            {
+                jugadores = jugadoresEnSala[sala];
+                foreach(Jugador jugadorLista in jugadores)
+                {
+                    if(jugador != jugadorLista)
+                    {
+                        jugadorContricante.Apodo = jugadorLista.Apodo;
+                        jugadorContricante.Contraseña = jugadorLista.Contraseña;
+                        jugadorContricante.CorreoElectronico = jugadorLista.CorreoElectronico;
+                        jugadorContricante.IdJugador = jugadorLista.IdJugador;
+                    }
+                }
+            }
+            return jugadorContricante;
+        }
+
+        public void todoListo(string sala, string jugador, int numeroDeListos)
+        {
+            if(this.listaSalas.ContainsKey(sala))
+            {
+                List<IChatCallback> listaJugador = this.listaSalas[sala];
+                if (numeroDeListos == 2)
+                {    
+                    foreach (IChatCallback callback in listaJugador)
+                    {
+                        if (callback != CurrentCallback)
+                        {
+                            callback.recibirTodoListo(jugador);
+                        }
+                        callback.recibirTodoListoParaIniciar(jugador);
+                    }
+                }
+                else
+                {
+                    foreach (IChatCallback callback in listaJugador)
+                    {
+                        if (callback != CurrentCallback)
+                        {
+                            callback.recibirTodoListo(jugador);
+                        }
+                    }
+                }
+            }
+            
+        }
+
+        public void cancelarTodoListo(string sala, string jugador)
+        {
+            if (this.listaSalas.ContainsKey(sala))
+            {
+                List<IChatCallback> listaJugadores = this.listaSalas[sala];
+                foreach (IChatCallback callback in listaJugadores)
+                {
+                    if (callback != CurrentCallback)
+                    {
+                        callback.recibirCancelarListo(jugador);
+                    }
+                }
             }
         }
     }
@@ -248,11 +332,10 @@ namespace ServicioConWCFJuego
             //Que hacer cuando llegue la cuenta regresiva a 0?
         }
 
-        private bool ChecarJugadorEnPartida (string contricante)
+        private bool ChecarJugadorEnPartida (string jugador)
         {
             bool estaEnPartida = false;
-            IPartidaCallback CallbackJugador = jugadoresEnPartida[contricante];
-            if(CallbackJugador != null)
+            if(jugadoresEnPartida.ContainsKey(jugador))
             {
                 estaEnPartida = true;
             }

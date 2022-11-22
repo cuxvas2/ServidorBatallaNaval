@@ -25,9 +25,13 @@ namespace ServicioConWCFJuego
         [OperationContract(IsOneWay = true)]
         void enviarMensaje(Chat mensaje);
         [OperationContract(IsOneWay = true)]
-        void crearSala();
+        void crearSala(Jugador jugador);
         [OperationContract(IsOneWay = true)]
-        void unirseASala(string sala, string jugador);
+        void unirseASala(string sala, Jugador jugador);
+        [OperationContract(IsOneWay = true)]
+        void todoListo(string sala, string jugador, int numeroDeListos);
+        [OperationContract(IsOneWay = true)]
+        void cancelarTodoListo(string sala, string jugador);
 
     }
 
@@ -47,7 +51,13 @@ namespace ServicioConWCFJuego
         [OperationContract]
         void recibirCodigoSala(String codigo);
         [OperationContract]
-        void jugadorSeUnio(string jugador, string sala, bool seUnio);
+        void jugadorSeUnio(Jugador jugador, string sala, bool seUnio);
+        [OperationContract]
+        void recibirTodoListo(string contricante);
+        [OperationContract]
+        void recibirTodoListoParaIniciar(string contricante);
+        [OperationContract]
+        void recibirCancelarListo(string contricante);
 
 
     }
