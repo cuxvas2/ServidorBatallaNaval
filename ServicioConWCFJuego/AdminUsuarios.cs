@@ -67,6 +67,8 @@ namespace ServicioConWCFJuego
         private Dictionary<String, List<IChatCallback>> listaSalas = new Dictionary<string, List<IChatCallback>>();
 
         private Dictionary<String, List<Jugador>> jugadoresEnSala = new Dictionary<string, List<Jugador>>();
+        
+        private Dictionary<String, IChatCallback> jugadoresEnPartida = new Dictionary<String, IChatCallback>();
 
 
         public IChatCallback CurrentCallback
@@ -256,11 +258,11 @@ namespace ServicioConWCFJuego
                 {    
                     foreach (IChatCallback callback in listaJugador)
                     {
+                        callback.recibirTodoListoParaIniciar(jugador);
                         if (callback != CurrentCallback)
                         {
                             callback.recibirTodoListo(jugador);
                         }
-                        callback.recibirTodoListoParaIniciar(jugador);
                     }
                 }
                 else
@@ -291,17 +293,26 @@ namespace ServicioConWCFJuego
                 }
             }
         }
-    }
 
-    public partial class AdminUsuarios : IAdminiPartida
-    {
-        Dictionary<String, IPartidaCallback> jugadoresEnPartida = new Dictionary<String, IPartidaCallback>();
-
-        public bool tiro(int[] coordenadas, string contricante)
+        public void Tiro(string coordenadas, string contricante, string sala)
         {
-            IPartidaCallback callback = jugadoresEnPartida[contricante];
-            bool aserta = callback.insertarDisparo(coordenadas);
-            return aserta;
+            /*if (jugadoresEnPartida.ContainsKey(contricante))
+            {
+                Console.WriteLine("Se tiró contra " + contricante + " En la posición " + coordenadas);
+                IChatCallback callback;
+                callback = jugadoresEnPartida[contricante];
+                callback.insertarDisparo(coordenadas);
+            }*/
+            List<IChatCallback> miembrosSala = new List<IChatCallback>();
+            if (this.listaSalas.ContainsKey(sala))
+            {
+                miembrosSala = this.listaSalas[sala];
+                foreach (IChatCallback callback in miembrosSala)
+                {
+                    callback.insertarDisparo(coordenadas);
+                }
+            }
+
         }
 
         //Este método solo lo implemeta el lider de la partida
@@ -309,7 +320,7 @@ namespace ServicioConWCFJuego
         {
             Random random = new Random();
             int tiro = random.Next(1, 3);
-            IPartidaCallback callback;
+            IChatCallback callback;
             if (tiro == 1)
             {
                 callback = jugadoresEnPartida[jugador1];
@@ -318,7 +329,7 @@ namespace ServicioConWCFJuego
             {
                 callback = jugadoresEnPartida[jugador2];
             }
-            callback.IniciarPartidaCallback(true);
+            callback.primerTiroCallback(true);
         }
 
         public void temporizadorTurnos()
@@ -332,15 +343,6 @@ namespace ServicioConWCFJuego
             //Que hacer cuando llegue la cuenta regresiva a 0?
         }
 
-        private bool ChecarJugadorEnPartida (string jugador)
-        {
-            bool estaEnPartida = false;
-            if(jugadoresEnPartida.ContainsKey(jugador))
-            {
-                estaEnPartida = true;
-            }
-            return estaEnPartida;
-        }
 
         //Este metodo se debe implementar en todos los clientes aunque no sean 
         //el lider de la paartida  para poder guardar el callback de todos los
@@ -348,20 +350,45 @@ namespace ServicioConWCFJuego
         public void IniciarPartida(string jugador)
         {
             bool iniciarPartida = false;
-            if(!ChecarJugadorEnPartida(jugador))
+            IChatCallback callback = CurrentCallback;
+            if (!jugadoresEnPartida.ContainsKey(jugador))
             {
-                jugadoresEnPartida.Add(jugador, OperationContext.Current.GetCallbackChannel<IPartidaCallback>());
+                jugadoresEnPartida.Add(jugador, callback);
                 iniciarPartida = true;
+                Console.WriteLine("Jugador " + jugador + " listo");
             }
-            OperationContext.Current.GetCallbackChannel<IPartidaCallback>().IniciarPartidaCallback(iniciarPartida);
+            callback.IniciarPartidaCallback(iniciarPartida);
         }
 
         public void TerminarPartida(string jugador)
         {
-            if (ChecarJugadorEnPartida(jugador))
+            if (jugadoresEnPartida.ContainsKey(jugador))
             {
                 jugadoresEnPartida.Remove(jugador);
             }
         }
+
+        public void ActualizarCallbackEnPartida(string jugador)
+        {
+            if (jugadoresEnPartida.ContainsKey(jugador))
+            {
+                jugadoresEnPartida.Remove(jugador);
+            }
+            jugadoresEnPartida.Add(jugador,CurrentCallback);
+        }
+
+        public void PartidaGanada(string janador, string jugadorParaNotificar)
+        {
+            if (jugadoresEnPartida.ContainsKey(jugadorParaNotificar))
+            {
+                IChatCallback callback;
+                callback = jugadoresEnPartida[jugadorParaNotificar];
+                callback.PartidaGanadaCallback(janador);
+                jugadoresEnPartida.Remove(janador);
+                jugadoresEnPartida.Remove(jugadorParaNotificar);
+            }
+        }
     }
+
+
 }
