@@ -294,24 +294,25 @@ namespace ServicioConWCFJuego
             }
         }
 
-        public void Tiro(string coordenadas, string contricante, string sala)
+        public void Tiro(String coordenadas, String contricante, String sala, String NombreJugador)
         {
-            /*if (jugadoresEnPartida.ContainsKey(contricante))
+            if (jugadoresEnPartida.ContainsKey(contricante))
             {
+                jugadoresEnPartida[NombreJugador] = CurrentCallback;
                 Console.WriteLine("Se tiró contra " + contricante + " En la posición " + coordenadas);
-                IChatCallback callback;
-                callback = jugadoresEnPartida[contricante];
+                IChatCallback callback = jugadoresEnPartida[contricante];
                 callback.insertarDisparo(coordenadas);
-            }*/
-            List<IChatCallback> miembrosSala = new List<IChatCallback>();
+            }
+            /*List<IChatCallback> miembrosSala = new List<IChatCallback>();
             if (this.listaSalas.ContainsKey(sala))
             {
                 miembrosSala = this.listaSalas[sala];
                 foreach (IChatCallback callback in miembrosSala)
                 {
                     callback.insertarDisparo(coordenadas);
+                    Console.WriteLine("Tiro enviado a la sala "+sala);
                 }
-            }
+            }*/
 
         }
 
@@ -350,14 +351,13 @@ namespace ServicioConWCFJuego
         public void IniciarPartida(string jugador)
         {
             bool iniciarPartida = false;
-            IChatCallback callback = CurrentCallback;
             if (!jugadoresEnPartida.ContainsKey(jugador))
             {
-                jugadoresEnPartida.Add(jugador, callback);
+                jugadoresEnPartida.Add(jugador, CurrentCallback);
                 iniciarPartida = true;
                 Console.WriteLine("Jugador " + jugador + " listo");
             }
-            callback.IniciarPartidaCallback(iniciarPartida);
+            CurrentCallback.IniciarPartidaCallback(iniciarPartida);
         }
 
         public void TerminarPartida(string jugador)
@@ -375,6 +375,7 @@ namespace ServicioConWCFJuego
                 jugadoresEnPartida.Remove(jugador);
             }
             jugadoresEnPartida.Add(jugador,CurrentCallback);
+            CurrentCallback.ActualizarCallbackEnPartidaCallback(true);
         }
 
         public void PartidaGanada(string janador, string jugadorParaNotificar)

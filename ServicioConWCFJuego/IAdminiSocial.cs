@@ -10,7 +10,7 @@ using System.Text;
 namespace ServicioConWCFJuego
 {
 
-    [ServiceContract(CallbackContract = typeof(IChatCallback), SessionMode = SessionMode.Required)]
+    [ServiceContract(CallbackContract = typeof(IChatCallback))]
     public interface IAdminiSocial
     {
         [OperationContract(IsOneWay = true)]
@@ -19,7 +19,7 @@ namespace ServicioConWCFJuego
         [OperationContract(IsOneWay = true)]
         void estaEscribiendo(Jugador jugador);
 
-        [OperationContract(IsOneWay = true, IsTerminating = true)]
+        [OperationContract(IsOneWay = true)]
         void desconectado(Jugador jugador);
 
         [OperationContract(IsOneWay = true)]
@@ -36,16 +36,16 @@ namespace ServicioConWCFJuego
         
         //Esto es de partida
         [OperationContract(IsOneWay =true)]
-        void Tiro(String coordenadas, String contricante, String sala);
-        [OperationContract(IsOneWay = true, IsInitiating = true)]
+        void Tiro(String coordenadas, String contricante, String sala, String NombreJugador);
+        [OperationContract(IsOneWay = true)]
         void IniciarPartida(string jugador);
-        [OperationContract(IsOneWay = true, IsTerminating =true)]
+        [OperationContract(IsOneWay = true)]
         void TerminarPartida(string jugador);
         [OperationContract(IsOneWay = true)]
         void PrimerTiro(string jugador1, string jugador2);
-        [OperationContract(IsOneWay =true, IsInitiating = true)]
+        [OperationContract(IsOneWay = true)]
         void ActualizarCallbackEnPartida(string jugador);
-        [OperationContract(IsOneWay = true, IsTerminating = true)]
+        [OperationContract(IsOneWay = true)]
         void PartidaGanada(string janador, string jugadorParaNotificar);
 
 
@@ -68,24 +68,26 @@ namespace ServicioConWCFJuego
         void recibirCodigoSala(String codigo);
         [OperationContract]
         void jugadorSeUnio(Jugador jugador, string sala, bool seUnio);
-        [OperationContract(IsOneWay = true)]
+        [OperationContract]
         void recibirTodoListo(string contricante);
-        [OperationContract(IsOneWay = true)]
+        [OperationContract]
         void recibirTodoListoParaIniciar(string contricante);
-        [OperationContract(IsOneWay = true)]
+        [OperationContract]
         void recibirCancelarListo(String contricante);
 
 
 
         //De partida
-        [OperationContract(IsOneWay =true)]
+        [OperationContract]
         void insertarDisparo(String coordenadas);
-        [OperationContract(IsOneWay = true)]
+        [OperationContract]
         void IniciarPartidaCallback(bool inicar);
-        [OperationContract(IsOneWay = true)]
+        [OperationContract]
         void primerTiroCallback(bool iniciar);
-        [OperationContract(IsOneWay = true)]
+        [OperationContract]
         void PartidaGanadaCallback(String jugadorGanado);
+        [OperationContract]
+        void ActualizarCallbackEnPartidaCallback(bool actualizado);
 
 
     }
