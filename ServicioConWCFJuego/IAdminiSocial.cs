@@ -47,6 +47,8 @@ namespace ServicioConWCFJuego
         void ActualizarCallbackEnPartida(string jugador);
         [OperationContract(IsOneWay = true)]
         void PartidaGanada(string janador, string jugadorParaNotificar);
+        [OperationContract(IsOneWay = true)]
+        void TiroCertero(String coordenadas, String contricante);
 
 
     }
@@ -88,6 +90,8 @@ namespace ServicioConWCFJuego
         void PartidaGanadaCallback(String jugadorGanado);
         [OperationContract]
         void ActualizarCallbackEnPartidaCallback(bool actualizado);
+        [OperationContract]
+        void TiroCerteroCallback(String coordenadas);
 
 
     }

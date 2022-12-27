@@ -303,16 +303,6 @@ namespace ServicioConWCFJuego
                 IChatCallback callback = jugadoresEnPartida[contricante];
                 callback.insertarDisparo(coordenadas);
             }
-            /*List<IChatCallback> miembrosSala = new List<IChatCallback>();
-            if (this.listaSalas.ContainsKey(sala))
-            {
-                miembrosSala = this.listaSalas[sala];
-                foreach (IChatCallback callback in miembrosSala)
-                {
-                    callback.insertarDisparo(coordenadas);
-                    Console.WriteLine("Tiro enviado a la sala "+sala);
-                }
-            }*/
 
         }
 
@@ -387,6 +377,15 @@ namespace ServicioConWCFJuego
                 callback.PartidaGanadaCallback(janador);
                 jugadoresEnPartida.Remove(janador);
                 jugadoresEnPartida.Remove(jugadorParaNotificar);
+            }
+        }
+
+        public void TiroCertero(string coordenadas, string contricante)
+        {
+            if (jugadoresEnPartida.ContainsKey(contricante))
+            {
+                IChatCallback callback = jugadoresEnPartida[contricante];
+                callback.TiroCerteroCallback(coordenadas);
             }
         }
     }
