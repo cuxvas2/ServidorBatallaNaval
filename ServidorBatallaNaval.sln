@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Entidades", "Entidades\Enti
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Seguridad", "Seguridad\Seguridad.csproj", "{8D61EFB9-4554-4167-BF74-7CF97C85AC00}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServicioConWCFJuegoTests1", "ServicioConWCFJuegoTests1\ServicioConWCFJuegoTests1.csproj", "{64ACAF55-BC77-4C6B-99F0-13215297BD0F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{8D61EFB9-4554-4167-BF74-7CF97C85AC00}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8D61EFB9-4554-4167-BF74-7CF97C85AC00}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8D61EFB9-4554-4167-BF74-7CF97C85AC00}.Release|Any CPU.Build.0 = Release|Any CPU
+		{64ACAF55-BC77-4C6B-99F0-13215297BD0F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64ACAF55-BC77-4C6B-99F0-13215297BD0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64ACAF55-BC77-4C6B-99F0-13215297BD0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64ACAF55-BC77-4C6B-99F0-13215297BD0F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
