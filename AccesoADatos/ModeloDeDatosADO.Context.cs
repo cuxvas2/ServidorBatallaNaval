@@ -25,7 +25,6 @@ namespace AccesoADatos
             throw new UnintentionalCodeFirstException();
         }
     
-        public virtual DbSet<Invitaciones> Invitaciones { get; set; }
         public virtual DbSet<Jugadores> Jugadores { get; set; }
     }
 }

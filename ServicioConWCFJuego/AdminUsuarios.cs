@@ -1,37 +1,49 @@
 ﻿using AccesoADatos;
 using Entidades;
+using Seguridad;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Diagnostics;
 using System.Linq;
-using System.Runtime.Serialization;
+using System.Runtime.InteropServices;
 using System.ServiceModel;
-using System.ServiceModel.Channels;
-using System.Text;
-using System.Timers;
 
 namespace ServicioConWCFJuego
 {
-    // NOTA: puede usar el co
-    // mando "Rename" del menú "Refactorizar" para cambiar el nombre de clase "Service1" en el código y en el archivo de configuración a la vez.
     [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Multiple, InstanceContextMode = InstanceContextMode.Single)]
     public partial class AdminUsuarios : IAdminiUsuarios
-
     {
         private Dictionary<String, Jugador> jugadoresConectados = new Dictionary<string, Jugador>();
+        private readonly AccesoADatos.ConsultasUsuario Consultas = new ConsultasUsuario();
 
         public bool cambiarContraseña(Jugador jugador)
         {
             return true;
         }
 
+        /// <summary>Iniciars the sesion.</summary>
+        /// <param name="usuario">EL correo electronico del jugador</param>
+        /// <param name="contraseña">La contraseña del jugador</param>
+        /// <returns>True si se encuentra registrado, False si no lo está</returns>
+        /// <exception cref="EntityException">
+        ///   <para>Si hay un error con la base de datos</para>
+        /// </exception>
         public bool iniciarSesion(string usuario, string contraseña)
         {
             Boolean estaRegistrado = false;
             if (!jugadoresConectados.ContainsKey(usuario))
             {
-                AccesoADatos.consultasUsuario consultas = new consultasUsuario();
-                
-                estaRegistrado = consultas.buscarJudadorRegistrado(usuario, contraseña);
+                try
+                {
+                    estaRegistrado = Consultas.BuscarJudadorRegistrado(usuario, contraseña);
+                }
+                catch (EntityException ex)
+                {
+                    Trace.WriteLine(ex.Message + "->" + OperationContext.Current.Host.Credentials);
+                    Trace.Flush();
+                    throw new EntityException();
+                }
                 
             }
             return estaRegistrado;
@@ -39,19 +51,54 @@ namespace ServicioConWCFJuego
 
         public Jugador recuperarJugadorPorCorreo(string correoElectronico)
         {
-            AccesoADatos.consultasUsuario consultas = new consultasUsuario();
             Jugador jugador = new Jugador();
-            //Validar que sea un correo electronico válido
-            jugador = consultas.buscarJugadorPorCorreo(correoElectronico);
-            jugadoresConectados.Add(jugador.CorreoElectronico, jugador);
+            try
+            {
+                jugador = Consultas.BuscarJugadorPorCorreo(correoElectronico);
+                jugadoresConectados.Add(jugador.Apodo, jugador);
+
+            }
+            catch (EntityException excepcion)
+            {
+                Trace.WriteLine(excepcion.Message + excepcion.Source);
+                Trace.Flush();
+                throw new EntityException();
+            }
+            catch (ArgumentNullException)
+            {
+                if (jugadoresConectados.ContainsKey(jugador.Apodo))
+                {
+                    jugadoresConectados.Remove(jugador.Apodo);
+                }
+            }
             return jugador;
         }
 
+        /// <summary>Registra un usuario nuevo.</summary>
+        /// <param name="jugador">El jugador.</param>
+        /// <returns>Si se pudo registrar o no</returns>
+        /// <exception cref="DuplicateNameException">Si los datos del jugador ya estan registrados</exception>
+        /// <exception cref="EntityException">Si existe algun error con la base de datos</exception>
         public bool registarUsuario(Jugador jugador)
         {
-            AccesoADatos.consultasUsuario consultas = new consultasUsuario();
-            Boolean registro = false;
-            registro = consultas.registrarUsuario(jugador);
+            bool registro = false;
+
+            try
+            {
+                registro = Consultas.RegistrarUsuario(jugador);
+            }
+            catch(DuplicateNameException e)
+            {
+                Trace.WriteLine(e.Message + e.Source);
+                Trace.Flush();
+                throw new DuplicateNameException();
+            }
+            catch (EntityException e)
+            {
+                Trace.WriteLine(e.Message + e.Source);
+                Trace.Flush();
+                throw new EntityException();
+            }
             return registro;
         }
 
@@ -71,6 +118,8 @@ namespace ServicioConWCFJuego
         private Dictionary<String, IChatCallback> jugadoresEnPartida = new Dictionary<String, IChatCallback>();
 
 
+        /// <summary>Obtene el Callback para cada usuario</summary>
+        /// <value>El Callback</value>
         public IChatCallback CurrentCallback
         {
             get
@@ -83,8 +132,7 @@ namespace ServicioConWCFJuego
         object syncObj = new object();
         public void Conectado(Jugador jugador)
         {
-            bool bandera = false;
-            if (!jugadores.ContainsValue(CurrentCallback) && !buscarJugadoresPorNombre(jugador.Apodo))
+            if (!jugadores.ContainsValue(CurrentCallback) && !BuscarJugadoresPorNombre(jugador.Apodo))
             {
                 lock (syncObj)
                 {
@@ -98,14 +146,12 @@ namespace ServicioConWCFJuego
                         {
                             //callback.actualizarJugadores(listaJugadores);
                             callback.unionDeJugador(jugador);
-                            bandera = true;
                         }
                         catch
                         {
                             jugadores.Remove(key);
 
                         }
-                        bandera = true;
 
                     }
 
@@ -136,18 +182,7 @@ namespace ServicioConWCFJuego
             }
         }
 
-        public void estaEscribiendo(Jugador jugador)
-        {
-            lock (syncObj)
-            {
-                foreach (IChatCallback callback in jugadores.Values)
-                {
-                    callback.escribiendoEnCallback(jugador);
-                }
-            }
-        }
-
-        public bool buscarJugadoresPorNombre(string apodo)
+        public bool BuscarJugadoresPorNombre(string apodo)
         {
             foreach (Jugador c in jugadores.Keys)
             {
@@ -159,6 +194,8 @@ namespace ServicioConWCFJuego
             return false;
         }
 
+        /// <summary>Envia un mensaje a todos los mienbros de una sala</summary>
+        /// <param name="mensaje">El mensaje que se quiere enviar</param>
         public void enviarMensaje(Chat mensaje)
         {
             List<IChatCallback> miembrosSala = new List<IChatCallback>();
@@ -166,20 +203,45 @@ namespace ServicioConWCFJuego
                 miembrosSala = this.listaSalas[mensaje.Sala];
                 foreach (IChatCallback callback in miembrosSala)
                 {
-                    callback.recibirMensaje(mensaje);
+                    try
+                    {
+                        callback.recibirMensaje(mensaje);
+                    }
+                    catch(TimeoutException exception)
+                    {
+                        Log(exception);
+                    }
+                    catch (CommunicationException exception)
+                    {
+                        Log(exception);
+                    }
                 }
             }
             
         }
 
+        private void Log(CommunicationException exception)
+        {
+            Trace.WriteLine(exception.Message + " - " + exception.Source);
+            Trace.Flush();
+        }
+
+        private void Log(TimeoutException exception)
+        {
+            Trace.WriteLine(exception.Message + " - " + exception.Source);
+            Trace.Flush();
+        }
+
+        /// <summary>Crea una sala nueva y mete al jugador que invoca este método a la sala</summary>
+        /// <param name="jugador">el jugador que crea la sala</param>
         public void crearSala(Jugador jugador)
         {
-            String codigo = generarCodigo();
+            String codigo = GenerarCodigo();
             List<IChatCallback> listaJugador = new List<IChatCallback>();
 
-            while (this.listaSalas.TryGetValue(codigo, out listaJugador))
+            while (this.listaSalas.ContainsKey(codigo))
             {
-                codigo = generarCodigo();
+                codigo = GenerarCodigo();
             }
 
             List<IChatCallback> listaJugadores = new List<IChatCallback>();
@@ -188,10 +250,23 @@ namespace ServicioConWCFJuego
             jugadores.Add(jugador);
             jugadoresEnSala.Add(codigo, jugadores);
             this.listaSalas.Add(codigo,listaJugadores);
-            OperationContext.Current.GetCallbackChannel<IChatCallback>().recibirCodigoSala(codigo);
+            try
+            {
+                OperationContext.Current.GetCallbackChannel<IChatCallback>().recibirCodigoSala(codigo);
+            }
+            catch (TimeoutException exception)
+            {
+                Log(exception);
+            }
+            catch (CommunicationException exception)
+            {
+                Log(exception);
+            }
         }
 
-        private String generarCodigo()
+        /// <summary>Genera un código de 5 números enteros.</summary>
+        /// <returns>Un codigo en formato String</returns>
+        private String GenerarCodigo()
         {
             Random r = new Random();
             String codigo = "";
@@ -212,23 +287,43 @@ namespace ServicioConWCFJuego
             {
                 listaJugador = this.listaSalas[sala];
                 listaJugador.Add(CurrentCallback);
-                foreach (IChatCallback callback in listaJugador)
+                try
                 {
-                    //Esto hace la exceocion System.TimeoutException:
-                    callback.jugadorSeUnio(jugador, sala, true);
+                    foreach (IChatCallback callback in listaJugador)
+                    {
+                        callback.jugadorSeUnio(jugador, sala, true);
+                    }
+                    jugadorcontricante = BuscarJugadorContricanteEnSalas(sala, jugador);
+                    CurrentCallback.jugadorSeUnio(jugadorcontricante, sala, true);
                 }
-                jugadorcontricante = buscarJugadorContricanteEnSalas(sala, jugador);
-                CurrentCallback.jugadorSeUnio(jugadorcontricante, sala, true);
+                catch (TimeoutException exception)
+                {
+                    Log(exception);
+                }
+                catch (CommunicationException exception)
+                {
+                    Log(exception);
+                }
                 this.listaSalas[sala] = listaJugador;
-                
             }
             else
             {
-                CurrentCallback.jugadorSeUnio(jugadorcontricante, sala,  false);
+                try
+                {
+                    CurrentCallback.jugadorSeUnio(jugadorcontricante, sala,  false);
+                }
+                catch (TimeoutException exception)
+                {
+                    Log(exception);
+                }
+                catch (CommunicationException exception)
+                {
+                    Log(exception);
+                }
             }
         }
 
-        private Jugador buscarJugadorContricanteEnSalas(string sala, Jugador jugador)
+        private Jugador BuscarJugadorContricanteEnSalas(string sala, Jugador jugador)
         {
             Jugador jugadorContricante = new Jugador();
             List<Jugador> jugadores = new List<Jugador>();
@@ -258,10 +353,21 @@ namespace ServicioConWCFJuego
                 {    
                     foreach (IChatCallback callback in listaJugador)
                     {
-                        callback.recibirTodoListoParaIniciar(jugador);
-                        if (callback != CurrentCallback)
+                        try
                         {
-                            callback.recibirTodoListo(jugador);
+                            callback.recibirTodoListoParaIniciar(jugador);
+                            if (callback != CurrentCallback)
+                            {
+                                callback.recibirTodoListo(jugador);
+                            }
+                        }
+                        catch (TimeoutException exception)
+                        {
+                            Log(exception);
+                        }
+                        catch (CommunicationException exception)
+                        {
+                            Log(exception);
                         }
                     }
                 }
@@ -271,7 +377,18 @@ namespace ServicioConWCFJuego
                     {
                         if (callback != CurrentCallback)
                         {
-                            callback.recibirTodoListo(jugador);
+                            try
+                            {
+                                callback.recibirTodoListo(jugador);
+                            }
+                            catch (TimeoutException exception)
+                            {
+                                Log(exception);
+                            }
+                            catch (CommunicationException exception)
+                            {
+                                Log(exception);
+                            }
                         }
                     }
                 }
@@ -288,7 +405,18 @@ namespace ServicioConWCFJuego
                 {
                     if (callback != CurrentCallback)
                     {
-                        callback.recibirCancelarListo(jugador);
+                        try
+                        {
+                            callback.recibirCancelarListo(jugador);
+                        }
+                        catch (TimeoutException exception)
+                        {
+                            Log(exception);
+                        }
+                        catch (CommunicationException exception)
+                        {
+                            Log(exception);
+                        }
                     }
                 }
             }
@@ -299,14 +427,23 @@ namespace ServicioConWCFJuego
             if (jugadoresEnPartida.ContainsKey(contricante))
             {
                 jugadoresEnPartida[NombreJugador] = CurrentCallback;
-                Console.WriteLine("Se tiró contra " + contricante + " En la posición " + coordenadas);
                 IChatCallback callback = jugadoresEnPartida[contricante];
-                callback.insertarDisparo(coordenadas);
+                try
+                {
+                    callback.insertarDisparo(coordenadas);
+                }
+                catch (TimeoutException exception)
+                {
+                    Log(exception);
+                }
+                catch (CommunicationException exception)
+                {
+                    Log(exception);
+                }
             }
 
         }
 
-        //Este método solo lo implemeta el lider de la partida
         public void PrimerTiro(string jugador1, string jugador2)
         {
             Random random = new Random();
@@ -320,18 +457,18 @@ namespace ServicioConWCFJuego
             {
                 callback = jugadoresEnPartida[jugador2];
             }
-            callback.primerTiroCallback(true);
-        }
-
-        public void temporizadorTurnos()
-        {
-            Timer timer = new Timer(30000);
-            timer.Elapsed += EventoElapsed;
-            timer.Start();
-        }
-        private static void EventoElapsed(object sender, ElapsedEventArgs e)
-        {
-            //Que hacer cuando llegue la cuenta regresiva a 0?
+            try
+            {
+                callback.primerTiroCallback(true);
+            }
+            catch (TimeoutException exception)
+            {
+                Log(exception);
+            }
+            catch (CommunicationException exception)
+            {
+                Log(exception);
+            }
         }
 
 
@@ -345,9 +482,19 @@ namespace ServicioConWCFJuego
             {
                 jugadoresEnPartida.Add(jugador, CurrentCallback);
                 iniciarPartida = true;
-                Console.WriteLine("Jugador " + jugador + " listo");
             }
-            CurrentCallback.IniciarPartidaCallback(iniciarPartida);
+            try
+            {
+                CurrentCallback.IniciarPartidaCallback(iniciarPartida);
+            }
+            catch (TimeoutException exception)
+            {
+                Log(exception);
+            }
+            catch (CommunicationException exception)
+            {
+                Log(exception);
+            }
         }
 
         public void TerminarPartida(string jugador)
@@ -365,7 +512,18 @@ namespace ServicioConWCFJuego
                 jugadoresEnPartida.Remove(jugador);
             }
             jugadoresEnPartida.Add(jugador,CurrentCallback);
-            CurrentCallback.ActualizarCallbackEnPartidaCallback(true);
+            try
+            {
+                CurrentCallback.ActualizarCallbackEnPartidaCallback(true);
+            }
+            catch (TimeoutException exception)
+            {
+                Log(exception);
+            }
+            catch (CommunicationException exception)
+            {
+                Log(exception);
+            }
         }
 
         public void PartidaGanada(string janador, string jugadorParaNotificar)
@@ -374,18 +532,116 @@ namespace ServicioConWCFJuego
             {
                 IChatCallback callback;
                 callback = jugadoresEnPartida[jugadorParaNotificar];
-                callback.PartidaGanadaCallback(janador);
-                jugadoresEnPartida.Remove(janador);
-                jugadoresEnPartida.Remove(jugadorParaNotificar);
+                try
+                {
+                    callback.PartidaGanadaCallback(janador);
+                }
+                catch (TimeoutException exception)
+                {
+                    Log(exception);
+                }
+                catch (CommunicationException exception)
+                {
+                    Log(exception);
+                }
+                finally
+                {
+                    jugadoresEnPartida.Remove(janador);
+                    jugadoresEnPartida.Remove(jugadorParaNotificar);
+                }
             }
         }
 
+        /// <summary>Si un tiro acertó a un barco</summary>
+        /// <param name="coordenadas">Las coordenadas del barco</param>
+        /// <param name="contricante">El nombre del contricante</param>
         public void TiroCertero(string coordenadas, string contricante)
         {
             if (jugadoresEnPartida.ContainsKey(contricante))
             {
                 IChatCallback callback = jugadoresEnPartida[contricante];
-                callback.TiroCerteroCallback(coordenadas);
+                try
+                {
+                    callback.TiroCerteroCallback(coordenadas);
+                }
+                catch (TimeoutException exception)
+                {
+                    Log(exception);
+                }
+                catch (CommunicationException exception)
+                {
+                    Log(exception);
+                }
+            }
+        }
+
+        /// <summary>Cierra y elimina todas las sesiones que tenga abiertas con el cliente.</summary>
+        /// <param name="nombreJugador">El nombre del jugador.</param>
+        public void CerrarJuego(string nombreJugador)
+        {
+            if (this.jugadoresConectados.ContainsKey(nombreJugador))
+            {
+                this.jugadoresConectados.Remove(nombreJugador);
+            }
+            if (this.jugadores.ContainsValue(CurrentCallback))
+            {
+                try
+                {
+                    var item = this.jugadores.First(x => x.Value == CurrentCallback);
+                    this.jugadores.Remove(item.Key);
+                }
+                catch(ArgumentNullException e)
+                {
+                    Trace.WriteLine(e.Message + " - " + e.Source);
+                    Trace.Flush();
+                }
+                catch(InvalidOperationException e)
+                {
+                    Trace.WriteLine(e.Message + " - " + e.Source);
+                    Trace.Flush();
+                }
+
+            }
+        }
+
+        /// <summary>Emilina la sala si es que existe</summary>
+        /// <param name="codigoSala">El código de la sala a eliminar</param>
+        public void EliminarSala(string codigoSala)
+        {
+            if (listaSalas.ContainsKey(codigoSala))
+            {
+                listaSalas.Remove(codigoSala);
+            }
+        }
+
+        /// <summary>Expulsar el jugador de la sala</summary>
+        /// <param name="sala">El código de la sala</param>
+        public void ExpulsarDeSala(string sala)
+        {
+            if (this.listaSalas.ContainsKey(sala))
+            {
+                List<IChatCallback> listaJugador = new List<IChatCallback>();
+                listaJugador = this.listaSalas[sala];
+                foreach (IChatCallback callback in listaJugador)
+                {
+                    if(callback != CurrentCallback)
+                    {
+                        try
+                        {
+                            callback.RecibirExpulsacion();
+                            listaJugador.Remove(callback);
+                        }
+                        catch (TimeoutException exception)
+                        {
+                            Log(exception);
+                        }
+                        catch (CommunicationException exception)
+                        {
+                            Log(exception);
+                        }
+                    }
+                }
+                this.listaSalas[sala] = listaJugador;
             }
         }
     }

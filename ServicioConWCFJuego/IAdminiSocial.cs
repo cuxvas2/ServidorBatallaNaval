@@ -17,9 +17,6 @@ namespace ServicioConWCFJuego
         void Conectado(Jugador jugador);
 
         [OperationContract(IsOneWay = true)]
-        void estaEscribiendo(Jugador jugador);
-
-        [OperationContract(IsOneWay = true)]
         void desconectado(Jugador jugador);
 
         [OperationContract(IsOneWay = true)]
@@ -32,6 +29,8 @@ namespace ServicioConWCFJuego
         void todoListo(string sala, string jugador, int numeroDeListos);
         [OperationContract(IsOneWay = true)]
         void cancelarTodoListo(string sala, string jugador);
+        [OperationContract(IsOneWay = true)]
+        void EliminarSala(String codigoSala);
 
         
         //Esto es de partida
@@ -49,6 +48,10 @@ namespace ServicioConWCFJuego
         void PartidaGanada(string janador, string jugadorParaNotificar);
         [OperationContract(IsOneWay = true)]
         void TiroCertero(String coordenadas, String contricante);
+        [OperationContract(IsOneWay = true)]
+        void CerrarJuego(String nombreJugador);
+        [OperationContract(IsOneWay = true)]
+        void ExpulsarDeSala(String sala);
 
 
     }
@@ -92,7 +95,9 @@ namespace ServicioConWCFJuego
         void ActualizarCallbackEnPartidaCallback(bool actualizado);
         [OperationContract]
         void TiroCerteroCallback(String coordenadas);
-
+        
+        [OperationContract]
+        void RecibirExpulsacion();
 
     }
 

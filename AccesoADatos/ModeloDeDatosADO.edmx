@@ -6,22 +6,8 @@
     <edmx:StorageModels>
     <Schema Namespace="BatallaNavalDbModel.Store" Alias="Self" Provider="System.Data.SqlClient" ProviderManifestToken="2012" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
   <EntityContainer Name="BatallaNavalDbModelStoreContainer">
-    <EntitySet Name="Invitaciones" EntityType="BatallaNavalDbModel.Store.Invitaciones" store:Type="Tables" Schema="dbo" />
     <EntitySet Name="Jugadores" EntityType="BatallaNavalDbModel.Store.Jugadores" store:Type="Tables" Schema="dbo" />
-    <AssociationSet Name="FK_InvitacionJugador" Association="BatallaNavalDbModel.Store.FK_InvitacionJugador">
-      <End Role="Jugadores" EntitySet="Jugadores" />
-      <End Role="Invitaciones" EntitySet="Invitaciones" />
-    </AssociationSet>
   </EntityContainer>
-  <EntityType Name="Invitaciones">
-    <Key>
-      <PropertyRef Name="IdInvitacion" />
-    </Key>
-    <Property Name="IdInvitacion" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-    <Property Name="CorreoRemitente" Type="nvarchar(max)" Nullable="false" />
-    <Property Name="CorreoDestinatario" Type="nvarchar(max)" Nullable="false" />
-    <Property Name="Jugador_IdJugador" Type="int" Nullable="false" />
-  </EntityType>
   <EntityType Name="Jugadores">
     <Key>
       <PropertyRef Name="IdJugador" />
@@ -31,32 +17,10 @@
     <Property Name="Apodo" Type="nvarchar(max)" Nullable="false" />
     <Property Name="Contraseña" Type="nvarchar(max)" Nullable="false" />
   </EntityType>
-  <Association Name="FK_InvitacionJugador">
-    <End Role="Jugadores" Type="BatallaNavalDbModel.Store.Jugadores" Multiplicity="1" />
-    <End Role="Invitaciones" Type="BatallaNavalDbModel.Store.Invitaciones" Multiplicity="*" />
-    <ReferentialConstraint>
-      <Principal Role="Jugadores">
-        <PropertyRef Name="IdJugador" />
-      </Principal>
-      <Dependent Role="Invitaciones">
-        <PropertyRef Name="Jugador_IdJugador" />
-      </Dependent>
-    </ReferentialConstraint>
-  </Association>
 </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="BatallaNavalDbModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
-        <EntityType Name="Invitaciones">
-          <Key>
-            <PropertyRef Name="IdInvitacion" />
-          </Key>
-          <Property Name="IdInvitacion" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="CorreoRemitente" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="CorreoDestinatario" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="Jugador_IdJugador" Type="Int32" Nullable="false" />
-          <NavigationProperty Name="Jugadores" Relationship="Self.FK_InvitacionJugador" FromRole="Invitaciones" ToRole="Jugadores" />
-        </EntityType>
         <EntityType Name="Jugadores">
           <Key>
             <PropertyRef Name="IdJugador" />
@@ -65,27 +29,9 @@
           <Property Name="CorreoElectronico" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="Apodo" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="Contraseña" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
-          <NavigationProperty Name="Invitaciones" Relationship="Self.FK_InvitacionJugador" FromRole="Jugadores" ToRole="Invitaciones" />
         </EntityType>
-        <Association Name="FK_InvitacionJugador">
-          <End Role="Jugadores" Type="Self.Jugadores" Multiplicity="1" />
-          <End Role="Invitaciones" Type="Self.Invitaciones" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Jugadores">
-              <PropertyRef Name="IdJugador" />
-            </Principal>
-            <Dependent Role="Invitaciones">
-              <PropertyRef Name="Jugador_IdJugador" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <EntityContainer Name="BatallaNavalDbEntities" annotation:LazyLoadingEnabled="true">
-          <EntitySet Name="Invitaciones" EntityType="Self.Invitaciones" />
           <EntitySet Name="Jugadores" EntityType="Self.Jugadores" />
-          <AssociationSet Name="FK_InvitacionJugador" Association="Self.FK_InvitacionJugador">
-            <End Role="Jugadores" EntitySet="Jugadores" />
-            <End Role="Invitaciones" EntitySet="Invitaciones" />
-          </AssociationSet>
         </EntityContainer>
       </Schema>
     </edmx:ConceptualModels>
@@ -93,16 +39,6 @@
     <edmx:Mappings>
     <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
   <EntityContainerMapping StorageEntityContainer="BatallaNavalDbModelStoreContainer" CdmEntityContainer="BatallaNavalDbEntities">
-    <EntitySetMapping Name="Invitaciones">
-      <EntityTypeMapping TypeName="IsTypeOf(BatallaNavalDbModel.Invitaciones)">
-        <MappingFragment StoreEntitySet="Invitaciones">
-          <ScalarProperty Name="IdInvitacion" ColumnName="IdInvitacion" />
-          <ScalarProperty Name="CorreoRemitente" ColumnName="CorreoRemitente" />
-          <ScalarProperty Name="CorreoDestinatario" ColumnName="CorreoDestinatario" />
-          <ScalarProperty Name="Jugador_IdJugador" ColumnName="Jugador_IdJugador" />
-        </MappingFragment>
-      </EntityTypeMapping>
-    </EntitySetMapping>
     <EntitySetMapping Name="Jugadores">
       <EntityTypeMapping TypeName="IsTypeOf(BatallaNavalDbModel.Jugadores)">
         <MappingFragment StoreEntitySet="Jugadores">

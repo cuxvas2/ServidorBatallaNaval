@@ -53,10 +53,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="consultasUsuario.cs" />
-    <Compile Include="Invitaciones.cs">
-      <DependentUpon>ModeloDeDatosADO.tt</DependentUpon>
-    </Compile>
+    <Compile Include="ConsultasUsuario.cs" />
     <Compile Include="Jugadores.cs">
       <DependentUpon>ModeloDeDatosADO.tt</DependentUpon>
     </Compile>
