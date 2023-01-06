@@ -1,12 +1,10 @@
 ﻿using AccesoADatos;
 using Entidades;
-using Seguridad;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.ServiceModel;
 
 namespace ServicioConWCFJuego
@@ -17,9 +15,19 @@ namespace ServicioConWCFJuego
         private Dictionary<String, Jugador> jugadoresConectados = new Dictionary<string, Jugador>();
         private readonly AccesoADatos.ConsultasUsuario Consultas = new ConsultasUsuario();
 
-        public bool cambiarContraseña(Jugador jugador)
+        public bool CambiarContraseña(string apodo, string contraseñaNueva)
         {
-            return true;
+            bool contraseñaCambiada = false;
+            try
+            {
+                contraseñaCambiada = Consultas.CambiarContraseña(apodo, contraseñaNueva);
+            }
+            catch (EntityException ex)
+            {
+                Trace.WriteLine(ex.Message +  "-> " + OperationContext.Current.Host.Credentials);
+                Trace.Flush();
+            }
+            return contraseñaCambiada;
         }
 
         /// <summary>Iniciars the sesion.</summary>
@@ -29,7 +37,7 @@ namespace ServicioConWCFJuego
         /// <exception cref="EntityException">
         ///   <para>Si hay un error con la base de datos</para>
         /// </exception>
-        public bool iniciarSesion(string usuario, string contraseña)
+        public bool IniciarSesion(string usuario, string contraseña)
         {
             Boolean estaRegistrado = false;
             if (!jugadoresConectados.ContainsKey(usuario))
@@ -49,7 +57,7 @@ namespace ServicioConWCFJuego
             return estaRegistrado;
         }
 
-        public Jugador recuperarJugadorPorCorreo(string correoElectronico)
+        public Jugador RecuperarJugadorPorCorreo(string correoElectronico)
         {
             Jugador jugador = new Jugador();
             try
@@ -79,7 +87,7 @@ namespace ServicioConWCFJuego
         /// <returns>Si se pudo registrar o no</returns>
         /// <exception cref="DuplicateNameException">Si los datos del jugador ya estan registrados</exception>
         /// <exception cref="EntityException">Si existe algun error con la base de datos</exception>
-        public bool registarUsuario(Jugador jugador)
+        public bool RegistarUsuario(Jugador jugador)
         {
             bool registro = false;
 
@@ -102,6 +110,36 @@ namespace ServicioConWCFJuego
             return registro;
         }
 
+        public List<string> RecuperarListaDeAmigos(string nombreJugador)
+        {
+            List<string> amigos = new List<string>();
+            try
+            {
+                amigos = Consultas.ObtenerListaDeAmigos(nombreJugador);
+            }
+            catch (EntityException excepcion)
+            {
+                Trace.WriteLine(excepcion.Message + excepcion.Source);
+                Trace.Flush();
+                throw new EntityException();
+            }
+            return amigos;
+        }
+
+        public bool AñadirAmigo(string apodoJugador, string apodoAmigo)
+        {
+            bool amigoRegistrado = false;
+            try
+            {
+                amigoRegistrado = Consultas.AgregarAmigo(apodoJugador, apodoAmigo);
+            }
+            catch (EntityException excepcion)
+            {
+                Trace.WriteLine(excepcion.Message + excepcion.Source);
+                Trace.Flush();
+            }
+            return amigoRegistrado;
+        }
     }
 
     public partial class AdminUsuarios : IAdminiSocial
@@ -145,7 +183,7 @@ namespace ServicioConWCFJuego
                         try
                         {
                             //callback.actualizarJugadores(listaJugadores);
-                            callback.unionDeJugador(jugador);
+                            callback.UnionDeJugador(jugador);
                         }
                         catch
                         {
@@ -161,7 +199,7 @@ namespace ServicioConWCFJuego
 
         }
 
-        public void desconectado(Jugador jugador)
+        public void Desconectado(Jugador jugador)
         {
             foreach (Jugador c in jugadores.Keys)
             {
@@ -173,8 +211,8 @@ namespace ServicioConWCFJuego
                         this.listaJugadores.Remove(c);
                         foreach (IChatCallback callback in jugadores.Values)
                         {
-                            callback.actualizarJugadores(this.listaJugadores);
-                            callback.jugadorSeFue(jugador);
+                            callback.ActualizarJugadores(this.listaJugadores);
+                            callback.JugadorSeFue(jugador);
                         }
                     }
                     return;
@@ -196,7 +234,7 @@ namespace ServicioConWCFJuego
 
         /// <summary>Envia un mensaje a todos los mienbros de una sala</summary>
         /// <param name="mensaje">El mensaje que se quiere enviar</param>
-        public void enviarMensaje(Chat mensaje)
+        public void EnviarMensaje(Chat mensaje)
         {
             List<IChatCallback> miembrosSala = new List<IChatCallback>();
             if (this.listaSalas.ContainsKey(mensaje.Sala)){
@@ -205,7 +243,7 @@ namespace ServicioConWCFJuego
                 {
                     try
                     {
-                        callback.recibirMensaje(mensaje);
+                        callback.RecibirMensaje(mensaje);
                     }
                     catch(TimeoutException exception)
                     {
@@ -234,11 +272,9 @@ namespace ServicioConWCFJuego
 
         /// <summary>Crea una sala nueva y mete al jugador que invoca este método a la sala</summary>
         /// <param name="jugador">el jugador que crea la sala</param>
-        public void crearSala(Jugador jugador)
+        public void CrearSala(Jugador jugador)
         {
             String codigo = GenerarCodigo();
-            List<IChatCallback> listaJugador = new List<IChatCallback>();
-
             while (this.listaSalas.ContainsKey(codigo))
             {
                 codigo = GenerarCodigo();
@@ -252,7 +288,7 @@ namespace ServicioConWCFJuego
             this.listaSalas.Add(codigo,listaJugadores);
             try
             {
-                OperationContext.Current.GetCallbackChannel<IChatCallback>().recibirCodigoSala(codigo);
+                OperationContext.Current.GetCallbackChannel<IChatCallback>().RecibirCodigoSala(codigo);
             }
             catch (TimeoutException exception)
             {
@@ -279,7 +315,7 @@ namespace ServicioConWCFJuego
             return codigo;
         }
 
-        public void unirseASala(string sala, Jugador jugador)
+        public void UnirseASala(string sala, Jugador jugador)
         {
             List<IChatCallback> listaJugador = new List<IChatCallback>();
             Jugador jugadorcontricante = new Jugador();
@@ -291,10 +327,10 @@ namespace ServicioConWCFJuego
                 {
                     foreach (IChatCallback callback in listaJugador)
                     {
-                        callback.jugadorSeUnio(jugador, sala, true);
+                        callback.JugadorSeUnio(jugador, sala, true);
                     }
                     jugadorcontricante = BuscarJugadorContricanteEnSalas(sala, jugador);
-                    CurrentCallback.jugadorSeUnio(jugadorcontricante, sala, true);
+                    CurrentCallback.JugadorSeUnio(jugadorcontricante, sala, true);
                 }
                 catch (TimeoutException exception)
                 {
@@ -310,7 +346,7 @@ namespace ServicioConWCFJuego
             {
                 try
                 {
-                    CurrentCallback.jugadorSeUnio(jugadorcontricante, sala,  false);
+                    CurrentCallback.JugadorSeUnio(jugadorcontricante, sala,  false);
                 }
                 catch (TimeoutException exception)
                 {
@@ -344,7 +380,7 @@ namespace ServicioConWCFJuego
             return jugadorContricante;
         }
 
-        public void todoListo(string sala, string jugador, int numeroDeListos)
+        public void TodoListo(string sala, string jugador, int numeroDeListos)
         {
             if(this.listaSalas.ContainsKey(sala))
             {
@@ -355,10 +391,10 @@ namespace ServicioConWCFJuego
                     {
                         try
                         {
-                            callback.recibirTodoListoParaIniciar(jugador);
+                            callback.RecibirTodoListoParaIniciar(jugador);
                             if (callback != CurrentCallback)
                             {
-                                callback.recibirTodoListo(jugador);
+                                callback.RecibirTodoListo(jugador);
                             }
                         }
                         catch (TimeoutException exception)
@@ -379,7 +415,7 @@ namespace ServicioConWCFJuego
                         {
                             try
                             {
-                                callback.recibirTodoListo(jugador);
+                                callback.RecibirTodoListo(jugador);
                             }
                             catch (TimeoutException exception)
                             {
@@ -396,7 +432,7 @@ namespace ServicioConWCFJuego
             
         }
 
-        public void cancelarTodoListo(string sala, string jugador)
+        public void CancelarTodoListo(string sala, string jugador)
         {
             if (this.listaSalas.ContainsKey(sala))
             {
@@ -407,7 +443,7 @@ namespace ServicioConWCFJuego
                     {
                         try
                         {
-                            callback.recibirCancelarListo(jugador);
+                            callback.RecibirCancelarListo(jugador);
                         }
                         catch (TimeoutException exception)
                         {
@@ -430,7 +466,7 @@ namespace ServicioConWCFJuego
                 IChatCallback callback = jugadoresEnPartida[contricante];
                 try
                 {
-                    callback.insertarDisparo(coordenadas);
+                    callback.InsertarDisparo(coordenadas);
                 }
                 catch (TimeoutException exception)
                 {
@@ -459,7 +495,7 @@ namespace ServicioConWCFJuego
             }
             try
             {
-                callback.primerTiroCallback(true);
+                callback.PrimerTiroCallback(true);
             }
             catch (TimeoutException exception)
             {

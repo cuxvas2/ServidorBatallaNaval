@@ -17,18 +17,18 @@ namespace ServicioConWCFJuego
         void Conectado(Jugador jugador);
 
         [OperationContract(IsOneWay = true)]
-        void desconectado(Jugador jugador);
+        void Desconectado(Jugador jugador);
 
         [OperationContract(IsOneWay = true)]
-        void enviarMensaje(Chat mensaje);
+        void EnviarMensaje(Chat mensaje);
         [OperationContract(IsOneWay = true)]
-        void crearSala(Jugador jugador);
+        void CrearSala(Jugador jugador);
         [OperationContract(IsOneWay = true)]
-        void unirseASala(string sala, Jugador jugador);
+        void UnirseASala(string sala, Jugador jugador);
         [OperationContract(IsOneWay = true)]
-        void todoListo(string sala, string jugador, int numeroDeListos);
+        void TodoListo(string sala, string jugador, int numeroDeListos);
         [OperationContract(IsOneWay = true)]
-        void cancelarTodoListo(string sala, string jugador);
+        void CancelarTodoListo(string sala, string jugador);
         [OperationContract(IsOneWay = true)]
         void EliminarSala(String codigoSala);
 
@@ -60,35 +60,35 @@ namespace ServicioConWCFJuego
     public interface IChatCallback
     {
         [OperationContract(IsOneWay = true)]
-        void actualizarJugadores(List<Jugador> jugadores);
+        void ActualizarJugadores(List<Jugador> jugadores);
         [OperationContract(IsOneWay = true)]
-        void unionDeJugador(Jugador jugador);
+        void UnionDeJugador(Jugador jugador);
         [OperationContract(IsOneWay = true)]
-        void jugadorSeFue(Jugador jugador);
+        void JugadorSeFue(Jugador jugador);
         [OperationContract(IsOneWay = true)]
-        void escribiendoEnCallback(Jugador jugador);
+        void EscribiendoEnCallback(Jugador jugador);
         [OperationContract]
-        void recibirMensaje(Chat respuesta);
+        void RecibirMensaje(Chat respuesta);
         [OperationContract]
-        void recibirCodigoSala(String codigo);
+        void RecibirCodigoSala(string codigo);
         [OperationContract]
-        void jugadorSeUnio(Jugador jugador, string sala, bool seUnio);
+        void JugadorSeUnio(Jugador jugador, string sala, bool seUnio);
         [OperationContract]
-        void recibirTodoListo(string contricante);
+        void RecibirTodoListo(string contricante);
         [OperationContract]
-        void recibirTodoListoParaIniciar(string contricante);
+        void RecibirTodoListoParaIniciar(string contricante);
         [OperationContract]
-        void recibirCancelarListo(String contricante);
+        void RecibirCancelarListo(String contricante);
 
 
 
         //De partida
         [OperationContract]
-        void insertarDisparo(String coordenadas);
+        void InsertarDisparo(String coordenadas);
         [OperationContract]
         void IniciarPartidaCallback(bool inicar);
         [OperationContract]
-        void primerTiroCallback(bool iniciar);
+        void PrimerTiroCallback(bool iniciar);
         [OperationContract]
         void PartidaGanadaCallback(String jugadorGanado);
         [OperationContract]

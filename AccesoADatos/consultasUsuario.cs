@@ -5,8 +5,6 @@ using System.Data;
 using System.Data.Entity.Core;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AccesoADatos
 {
@@ -84,34 +82,29 @@ namespace AccesoADatos
             return registro;
         }
 
-        public Boolean CambiarContraseña(Jugador jugadorEntidad)
+        public Boolean CambiarContraseña(string apodo, string contraseña)
         {
             Boolean cambioExitoso = false;
-            using(var contexto = new BatallaNavalDbEntities())
+            try
             {
-                Jugadores jugador_db = new Jugadores();
-                jugador_db = ConvertirJugadorAJugadores(jugadorEntidad);
-                int actualizacionExitosa = 0;
-                
-                try
+                using(var contexto = new BatallaNavalDbEntities())
                 {
-                    contexto.Jugadores.Add(jugador_db);
-                    actualizacionExitosa = contexto.SaveChanges();
+                    Jugadores jugador_db = contexto.Jugadores.Where(x => x.Apodo == apodo).FirstOrDefault();
+                    if(jugador_db != null)
+                    {
+                        jugador_db.Contraseña = contraseña;
+                        contexto.Jugadores.Attach(jugador_db);
+                        contexto.SaveChanges();
+                        cambioExitoso = true;
+                    }
                 }
-                catch (EntityException excepcion)
-                {
-                    Trace.WriteLine(excepcion.Message + excepcion.Source);
-                    Trace.Flush();
-                    throw new EntityException();
-                }
-
-                if (actualizacionExitosa > 0)
-                {
-                    cambioExitoso = true;
-                    
-                }
-                return cambioExitoso;
             }
+            catch (EntityException excepcion)
+            {
+                Trace.WriteLine(excepcion.Message + excepcion.Source);
+                Trace.Flush();
+            }
+            return cambioExitoso;
         }
 
         private Jugadores ConvertirJugadorAJugadores(Jugador jugadorEntidad)
@@ -161,14 +154,60 @@ namespace AccesoADatos
             }
         }
 
-        public List<String> ObtenerListaDeAmigos(Jugador jugador)
+        public List<String> ObtenerListaDeAmigos(string jugador)
         {
             List<String> amigos = new List<string>();
             using(var contexto = new BatallaNavalDbEntities())
             {
                 Jugadores jugadores_db;
+                try
+                {
+                    jugadores_db = contexto.Jugadores.Where(x => x.Apodo == jugador).FirstOrDefault();
+                }
+                catch (EntityException excepcion)
+                {
+                    Trace.WriteLine(excepcion.Message + excepcion.Source);
+                    Trace.Flush();
+                    throw new EntityException();
+                }
+                if (jugadores_db != null)
+                {
+                    List<Jugadores> amigosJugadores = jugadores_db.Amigos.ToList();
+                    Jugador jugador1 = new Jugador();
+                    foreach(Jugadores jugadores in amigosJugadores)
+                    {
+                        amigos.Add(jugadores.Apodo);
+                    }
+                }
             }
             return amigos;
+        }
+
+        public bool AgregarAmigo(string apodoJugador, string apodoAmigo)
+        {
+            bool agregado = false;
+            using (var contexto = new BatallaNavalDbEntities())
+            {
+                try
+                {
+                    Jugadores jugador = contexto.Jugadores.Where(x => x.Apodo == apodoJugador).FirstOrDefault();
+                    Jugadores amigo = contexto.Jugadores.Where(x => x.Apodo == apodoAmigo).FirstOrDefault();
+                    if(jugador != null && amigo != null)
+                    {
+                        contexto.Jugadores.Attach(amigo);
+                        jugador.Amigos.Add(amigo);
+                        contexto.Jugadores.Attach(jugador);
+                        contexto.SaveChanges();
+                        agregado = true;
+                    }
+                }
+                catch (EntityException excepcion)
+                {
+                    Trace.WriteLine(excepcion.Message + excepcion.Source);
+                    Trace.Flush();
+                }
+            }
+            return agregado;
         }
     }
 }

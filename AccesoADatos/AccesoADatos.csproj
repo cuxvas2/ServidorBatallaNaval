@@ -75,6 +75,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\.editorconfig">
+      <Link>.editorconfig</Link>
+    </None>
     <None Include="App.config" />
     <EntityDeploy Include="ModeloDeDatosADO.edmx">
       <Generator>EntityModelCodeGenerator</Generator>

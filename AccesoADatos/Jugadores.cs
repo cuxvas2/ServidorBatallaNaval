@@ -14,9 +14,18 @@ namespace AccesoADatos
     
     public partial class Jugadores
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public Jugadores()
+        {
+            this.Amigos = new HashSet<Jugadores>();
+        }
+    
         public int IdJugador { get; set; }
         public string CorreoElectronico { get; set; }
         public string Apodo { get; set; }
         public string Contraseña { get; set; }
+    
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Jugadores> Amigos { get; set; }
     }
 }

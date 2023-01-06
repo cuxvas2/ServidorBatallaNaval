@@ -1,11 +1,7 @@
 ﻿using Entidades;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Runtime.Serialization;
 using System.ServiceModel;
-using System.Text;
 
 namespace ServicioConWCFJuego
 {
@@ -13,13 +9,17 @@ namespace ServicioConWCFJuego
     interface IAdminiUsuarios
     {
         [OperationContract]
-        Boolean iniciarSesion(String usuario, String contraseña);
+        Boolean IniciarSesion(String usuario, String contraseña);
         [OperationContract]
-        Boolean registarUsuario(Jugador jugador);
+        Boolean RegistarUsuario(Jugador jugador);
         [OperationContract]
-        Boolean cambiarContraseña(Jugador jugador);
+        Boolean CambiarContraseña(string apodo, string contraseñaNueva);
         [OperationContract]
-        Jugador recuperarJugadorPorCorreo(string correoElectronico);
+        Jugador RecuperarJugadorPorCorreo(string correoElectronico);
+        [OperationContract]
+        List<String> RecuperarListaDeAmigos(string nombreJugador);
+        [OperationContract]
+        Boolean AñadirAmigo(string apodoJugador, string apodoAmigo);
     }
     
 }

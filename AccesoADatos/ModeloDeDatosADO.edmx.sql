@@ -2,7 +2,7 @@
 -- --------------------------------------------------
 -- Entity Designer DDL Script for SQL Server 2005, 2008, 2012 and Azure
 -- --------------------------------------------------
--- Date Created: 12/30/2022 01:33:11
+-- Date Created: 01/05/2023 21:41:38
 -- Generated from EDMX file: C:\Users\Victor\Documents\Trabajos UV\5 semestre\Juego\ServidorBatallaNaval\AccesoADatos\ModeloDeDatosADO.edmx
 -- --------------------------------------------------
 
@@ -17,16 +17,11 @@ GO
 -- Dropping existing FOREIGN KEY constraints
 -- --------------------------------------------------
 
-IF OBJECT_ID(N'[dbo].[FK_InvitacionJugador]', 'F') IS NOT NULL
-    ALTER TABLE [dbo].[Invitaciones] DROP CONSTRAINT [FK_InvitacionJugador];
-GO
+
 -- --------------------------------------------------
 -- Dropping existing tables
 -- --------------------------------------------------
 
-IF OBJECT_ID(N'[dbo].[Invitaciones]', 'U') IS NOT NULL
-    DROP TABLE [dbo].[Invitaciones];
-GO
 IF OBJECT_ID(N'[dbo].[Jugadores]', 'U') IS NOT NULL
     DROP TABLE [dbo].[Jugadores];
 GO
@@ -44,6 +39,13 @@ CREATE TABLE [dbo].[Jugadores] (
 );
 GO
 
+-- Creating table 'JugadoresJugadores'
+CREATE TABLE [dbo].[JugadoresJugadores] (
+    [JugadoresAmigos_Jugadores1_IdJugador] int  NOT NULL,
+    [Amigos_IdJugador] int  NOT NULL
+);
+GO
+
 -- --------------------------------------------------
 -- Creating all PRIMARY KEY constraints
 -- --------------------------------------------------
@@ -54,9 +56,39 @@ ADD CONSTRAINT [PK_Jugadores]
     PRIMARY KEY CLUSTERED ([IdJugador] ASC);
 GO
 
+-- Creating primary key on [JugadoresAmigos_Jugadores1_IdJugador], [Amigos_IdJugador] in table 'JugadoresJugadores'
+ALTER TABLE [dbo].[JugadoresJugadores]
+ADD CONSTRAINT [PK_JugadoresJugadores]
+    PRIMARY KEY CLUSTERED ([JugadoresAmigos_Jugadores1_IdJugador], [Amigos_IdJugador] ASC);
+GO
+
 -- --------------------------------------------------
 -- Creating all FOREIGN KEY constraints
 -- --------------------------------------------------
+
+-- Creating foreign key on [JugadoresAmigos_Jugadores1_IdJugador] in table 'JugadoresJugadores'
+ALTER TABLE [dbo].[JugadoresJugadores]
+ADD CONSTRAINT [FK_JugadoresAmigos_Jugadores]
+    FOREIGN KEY ([JugadoresAmigos_Jugadores1_IdJugador])
+    REFERENCES [dbo].[Jugadores]
+        ([IdJugador])
+    ON DELETE NO ACTION ON UPDATE NO ACTION;
+GO
+
+-- Creating foreign key on [Amigos_IdJugador] in table 'JugadoresJugadores'
+ALTER TABLE [dbo].[JugadoresJugadores]
+ADD CONSTRAINT [FK_JugadoresAmigos_Jugadores1]
+    FOREIGN KEY ([Amigos_IdJugador])
+    REFERENCES [dbo].[Jugadores]
+        ([IdJugador])
+    ON DELETE NO ACTION ON UPDATE NO ACTION;
+GO
+
+-- Creating non-clustered index for FOREIGN KEY 'FK_JugadoresAmigos_Jugadores1'
+CREATE INDEX [IX_FK_JugadoresAmigos_Jugadores1]
+ON [dbo].[JugadoresJugadores]
+    ([Amigos_IdJugador]);
+GO
 
 -- --------------------------------------------------
 -- Script has ended

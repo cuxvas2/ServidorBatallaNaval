@@ -4,8 +4,9 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="d791aa84244548b78f29c54829074d81" Name="Diagram1">
-        <EntityTypeShape EntityType="BatallaNavalDbModel.Jugadores" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
+      <Diagram DiagramId="d791aa84244548b78f29c54829074d81" Name="Diagram1" ZoomLevel="115">
+        <EntityTypeShape EntityType="BatallaNavalDbModel.Jugadores" Width="1.5" PointX="3" PointY="4.5" IsExpanded="true" />
+        <AssociationConnector Association="BatallaNavalDbModel.JugadoresAmigos" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

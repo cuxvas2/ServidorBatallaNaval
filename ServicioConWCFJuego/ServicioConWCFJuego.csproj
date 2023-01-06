@@ -59,6 +59,10 @@
       <Project>{c537febd-4f98-49fa-afe7-aadd0f2c344a}</Project>
       <Name>Entidades</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Seguridad\Seguridad.csproj">
+      <Project>{8d61efb9-4554-4167-bf74-7cf97c85ac00}</Project>
+      <Name>Seguridad</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

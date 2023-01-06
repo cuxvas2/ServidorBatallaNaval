@@ -7,6 +7,15 @@
     <Schema Namespace="BatallaNavalDbModel.Store" Alias="Self" Provider="System.Data.SqlClient" ProviderManifestToken="2012" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
   <EntityContainer Name="BatallaNavalDbModelStoreContainer">
     <EntitySet Name="Jugadores" EntityType="BatallaNavalDbModel.Store.Jugadores" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="JugadoresJugadores" EntityType="BatallaNavalDbModel.Store.JugadoresAmigos" store:Type="Tables" Schema="dbo" />
+    <AssociationSet Name="FK_JugadoresJugadores_Jugadores" Association="BatallaNavalDbModel.Store.FK_JugadoresAmigos_Jugadores">
+      <End Role="Jugadores" EntitySet="Jugadores" />
+      <End Role="JugadoresAmigos" EntitySet="JugadoresJugadores" />
+    </AssociationSet>
+    <AssociationSet Name="FK_JugadoresJugadores_Jugadores1" Association="BatallaNavalDbModel.Store.FK_JugadoresAmigos_Jugadores1">
+      <End Role="Jugadores1" EntitySet="Jugadores" />
+      <End Role="JugadoresAmigos" EntitySet="JugadoresJugadores" />
+    </AssociationSet>
   </EntityContainer>
   <EntityType Name="Jugadores">
     <Key>
@@ -17,6 +26,38 @@
     <Property Name="Apodo" Type="nvarchar(max)" Nullable="false" />
     <Property Name="Contraseña" Type="nvarchar(max)" Nullable="false" />
   </EntityType>
+  <EntityType Name="JugadoresAmigos">
+    <Key>
+      <PropertyRef Name="JugadoresAmigos_Jugadores1_IdJugador" />
+      <PropertyRef Name="Amigos_IdJugador" />
+    </Key>
+    <Property Name="JugadoresAmigos_Jugadores1_IdJugador" Type="int" Nullable="false" />
+    <Property Name="Amigos_IdJugador" Type="int" Nullable="false" />
+  </EntityType>
+  <Association Name="FK_JugadoresAmigos_Jugadores">
+    <End Role="Jugadores" Type="BatallaNavalDbModel.Store.Jugadores" Multiplicity="1" />
+    <End Role="JugadoresAmigos" Type="BatallaNavalDbModel.Store.JugadoresAmigos" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Jugadores">
+        <PropertyRef Name="IdJugador" />
+      </Principal>
+      <Dependent Role="JugadoresAmigos">
+        <PropertyRef Name="JugadoresAmigos_Jugadores1_IdJugador" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_JugadoresAmigos_Jugadores1">
+    <End Role="JugadoresAmigos" Type="BatallaNavalDbModel.Store.JugadoresAmigos" Multiplicity="*" />
+    <End Role="Jugadores1" Type="BatallaNavalDbModel.Store.Jugadores" Multiplicity="1" />
+    <ReferentialConstraint>
+      <Principal Role="Jugadores1">
+        <PropertyRef Name="IdJugador" />
+      </Principal>
+      <Dependent Role="JugadoresAmigos">
+        <PropertyRef Name="Amigos_IdJugador" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
 </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
@@ -29,10 +70,19 @@
           <Property Name="CorreoElectronico" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="Apodo" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="Contraseña" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="Amigos" Relationship="BatallaNavalDbModel.JugadoresAmigos" FromRole="Jugadores" ToRole="Jugadores1" />
         </EntityType>
         <EntityContainer Name="BatallaNavalDbEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="Jugadores" EntityType="Self.Jugadores" />
+          <AssociationSet Name="JugadoresJugadores" Association="BatallaNavalDbModel.JugadoresAmigos">
+            <End Role="Jugadores" EntitySet="Jugadores" />
+            <End Role="Jugadores1" EntitySet="Jugadores" />
+          </AssociationSet>
         </EntityContainer>
+        <Association Name="JugadoresAmigos">
+          <End Type="BatallaNavalDbModel.Jugadores" Role="Jugadores" Multiplicity="*" />
+          <End Type="BatallaNavalDbModel.Jugadores" Role="Jugadores1" Multiplicity="*" />
+        </Association>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -49,6 +99,14 @@
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>
+    <AssociationSetMapping Name="JugadoresJugadores" TypeName="BatallaNavalDbModel.JugadoresAmigos" StoreEntitySet="JugadoresJugadores">
+      <EndProperty Name="Jugadores">
+        <ScalarProperty Name="IdJugador" ColumnName="JugadoresAmigos_Jugadores1_IdJugador" />
+      </EndProperty>
+      <EndProperty Name="Jugadores1">
+        <ScalarProperty Name="IdJugador" ColumnName="Amigos_IdJugador" />
+      </EndProperty>
+    </AssociationSetMapping>
   </EntityContainerMapping>
 </Mapping></edmx:Mappings>
   </edmx:Runtime>
