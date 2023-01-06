@@ -8,7 +8,7 @@ using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ServicioConWCFJuego.Tests
+namespace ServicioConWCFJuego.Test
 {
     [TestClass]
     public class AdminUsuariosTests
@@ -28,64 +28,76 @@ namespace ServicioConWCFJuego.Tests
             jugador3 = new Jugador();
 
 
-            jugador.Apodo = "Omig002";
-            jugador.CorreoElectronico = "Omarg2604@gmail.com";
-            jugador.Contraseña = "omigab2002";
-
+            jugador.Apodo = "omi";
+            jugador.CorreoElectronico = "omar@gmail.com";
+            jugador.Contraseña = "12345";
 
             jugador2.Apodo = "Cuxvas";
             jugador2.CorreoElectronico = "cuxvas@gmail.com";
-            jugador2.Contraseña = "i8Y2vR/Cys8MOYmdLdS8MlMh7zsGukXpOXw+cFs49wRDPRX+xzcrNeRJ2nkjKDmrm0moRcgdaz4SA4PmzFVoUBR5uxCgiAcVsNZ8u+6yiKSQ+fE9at11i/fBNThCd28LTrJzcuoqrap4aIG0cQH+kQB1sv6jWD1h7GZ1MV/bWmuT7MEwS73dGPoFmGkGs6z1OYy6treZ2hAfyMujhLz3/Q";
+            jugador2.Contraseña = "12345";
 
-            jugador3.Contraseña = null;
+
+            jugador3.Apodo = "PedritoSola";
+            jugador3.CorreoElectronico = "mayonesamccormick@gmail.com";
+            jugador3.Contraseña = "esHelmans";
 
         }
 
         [TestMethod()]
-
-        public void cambiarContraseñaTest()
+        public void CambiarContraseñaRegistrado()
         {
-            Assert.IsTrue(adminUsuarios.cambiarContraseña(jugador));
+            Assert.IsTrue(adminUsuarios.CambiarContraseña(jugador.Apodo,jugador.Contraseña));
 
         }
 
         [TestMethod()]
-        public void cambiarContraseñaTest1()
+        public void CambiarContraseñaNoRegistrado()
         {
-            //Assert.ThrowsException<System.NullReferenceException>(() =>  adminUsuarios.cambiarContraseña(jugador));
-
+            Assert.IsFalse(adminUsuarios.CambiarContraseña(jugador2.Apodo, jugador2.Contraseña));
         }
 
         [TestMethod()]
-        public void iniciarSesionTest()
+        public void IniciarSesionRegistrado()
         {
-            Assert.IsTrue(adminUsuarios.iniciarSesion(jugador.CorreoElectronico, jugador.Contraseña));
+            Assert.IsTrue(adminUsuarios.IniciarSesion(jugador.CorreoElectronico, jugador.Contraseña));
         }
 
         [TestMethod()]
-        public void recuperarJugadorPorCorreoTest()
+        public void IniciarSesionUsuarioNoRegistrado()
+        {
+            Assert.IsFalse(adminUsuarios.IniciarSesion(jugador2.CorreoElectronico, jugador2.Contraseña));
+        }
+
+        [TestMethod()]
+        public void RecuperarJugadorPorCorreoTest()
         {
             Assert.IsNotNull(jugador);
 
         }
 
         [TestMethod()]
-        public void registarUsuarioTest()
+        public void RegistarUsuarioNoRegistrado()
         {
-            Assert.IsTrue(adminUsuarios.registarUsuario(jugador));
+            Assert.IsTrue(adminUsuarios.RegistarUsuario(jugador3));
+        }
+
+        [TestMethod()]
+        public void RegistrarUsuarioYaRegistrado()
+        {
+            Assert.IsFalse(adminUsuarios.RegistarUsuario(jugador));
         }
 
          [TestMethod()]
-        public void buscarJugadoresPorNombreTest()
+        public void BuscarJugadoresPorNombreRegistrado()
         {
-            Assert.IsTrue(adminUsuarios.buscarJugadoresPorNombre(jugador.Apodo));
+            Assert.IsTrue(adminUsuarios.BuscarJugadoresPorNombre(jugador.Apodo));
 
         }
 
         [TestMethod()]
-        public void crearSalaTest()
+        public void BuscarJugadoresPorNombreNoRegistrado()
         {
-            //Assert.IsNotNull(adminUsuarios.crearSala(jugador));
+            Assert.IsFalse(adminUsuarios.BuscarJugadoresPorNombre(jugador2.Apodo));
         }
 
     }

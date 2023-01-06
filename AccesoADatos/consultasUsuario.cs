@@ -103,6 +103,7 @@ namespace AccesoADatos
             {
                 Trace.WriteLine(excepcion.Message + excepcion.Source);
                 Trace.Flush();
+                cambioExitoso = false;
             }
             return cambioExitoso;
         }
