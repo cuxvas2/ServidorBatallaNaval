@@ -17,12 +17,13 @@ namespace Seguridad
         }
 
 
-    public class Log
-    {
-        public Log(Exception e)
+        public class Log
         {
-            Trace.WriteLine(e.Message + " - " + e.Source);
-            Trace.Flush();
+            public Log(Exception e)
+            {
+                Trace.WriteLine(e.Message + " - " + e.Source);
+                Trace.Flush();
+            }
         }
     }
 }
