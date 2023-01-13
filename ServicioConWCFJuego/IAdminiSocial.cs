@@ -79,6 +79,8 @@ namespace ServicioConWCFJuego
         void RecibirTodoListoParaIniciar(string contricante);
         [OperationContract]
         void RecibirCancelarListo(String contricante);
+        [OperationContract]
+        void NotificarAbandorarSala();
 
 
 

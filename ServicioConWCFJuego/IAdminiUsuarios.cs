@@ -20,6 +20,8 @@ namespace ServicioConWCFJuego
         List<String> RecuperarListaDeAmigos(string nombreJugador);
         [OperationContract]
         Boolean AñadirAmigo(string apodoJugador, string apodoAmigo);
+        [OperationContract]
+        Boolean EliminarAmigo(string apodoJugador, string apodoAmigo);
     }
     
 }

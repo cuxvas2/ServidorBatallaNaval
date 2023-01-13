@@ -12,7 +12,7 @@ namespace ServicioConWCFJuego
     [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Multiple, InstanceContextMode = InstanceContextMode.Single)]
     public partial class AdminUsuarios : IAdminiUsuarios
     {
-        private Dictionary<String, Jugador> jugadoresConectados = new Dictionary<string, Jugador>();
+        private Dictionary<String, Jugador> JugadoresConectados = new Dictionary<string, Jugador>();
         private readonly AccesoADatos.ConsultasUsuario Consultas = new ConsultasUsuario();
 
         public bool CambiarContraseña(string apodo, string contraseñaNueva)
@@ -40,7 +40,7 @@ namespace ServicioConWCFJuego
         public bool IniciarSesion(string usuario, string contraseña)
         {
             Boolean estaRegistrado = false;
-            if (!jugadoresConectados.ContainsKey(usuario))
+            if (!JugadoresConectados.ContainsKey(usuario))
             {
                 try
                 {
@@ -63,7 +63,10 @@ namespace ServicioConWCFJuego
             try
             {
                 jugador = Consultas.BuscarJugadorPorCorreo(correoElectronico);
-                jugadoresConectados.Add(jugador.Apodo, jugador);
+                if (!JugadoresConectados.ContainsKey(jugador.Apodo))
+                {
+                    JugadoresConectados.Add(jugador.Apodo, jugador);
+                }
 
             }
             catch (EntityException excepcion)
@@ -74,9 +77,9 @@ namespace ServicioConWCFJuego
             }
             catch (ArgumentNullException)
             {
-                if (jugadoresConectados.ContainsKey(jugador.Apodo))
+                if (JugadoresConectados.ContainsKey(jugador.Apodo))
                 {
-                    jugadoresConectados.Remove(jugador.Apodo);
+                    JugadoresConectados.Remove(jugador.Apodo);
                 }
             }
             return jugador;
@@ -140,20 +143,38 @@ namespace ServicioConWCFJuego
             }
             return amigoRegistrado;
         }
+
+        public bool EliminarAmigo(string apodoJugador, string apodoAmigo)
+        {
+            bool amigoEliminado = false;
+            try
+            {
+                if (!String.IsNullOrWhiteSpace(apodoJugador) && !String.IsNullOrWhiteSpace(apodoAmigo))
+                {
+                    amigoEliminado = Consultas.EliminarAmigo(apodoJugador, apodoAmigo);
+                }
+            }
+            catch (EntityException excepcion)
+            {
+                Trace.WriteLine(excepcion.Message + excepcion.Source);
+                Trace.Flush();
+            }
+            return amigoEliminado;
+        }
     }
 
     public partial class AdminUsuarios : IAdminiSocial
     {
 
-        private Dictionary<Jugador, IChatCallback> jugadores = new Dictionary<Jugador, IChatCallback>();
+        private Dictionary<Jugador, IChatCallback> Jugadores = new Dictionary<Jugador, IChatCallback>();
 
-        private List<Jugador> listaJugadores = new List<Jugador>();
+        private List<Jugador> ListaJugadores = new List<Jugador>();
 
-        private Dictionary<String, List<IChatCallback>> listaSalas = new Dictionary<string, List<IChatCallback>>();
+        private Dictionary<String, List<IChatCallback>> ListaSalas = new Dictionary<string, List<IChatCallback>>();
 
-        private Dictionary<String, List<Jugador>> jugadoresEnSala = new Dictionary<string, List<Jugador>>();
+        private Dictionary<String, List<Jugador>> JugadoresEnSala = new Dictionary<string, List<Jugador>>();
         
-        private Dictionary<String, IChatCallback> jugadoresEnPartida = new Dictionary<String, IChatCallback>();
+        private Dictionary<String, IChatCallback> JugadoresEnPartida = new Dictionary<String, IChatCallback>();
 
 
         /// <summary>Obtene el Callback para cada usuario</summary>
@@ -167,19 +188,19 @@ namespace ServicioConWCFJuego
             }
         }
 
-        object syncObj = new object();
+        readonly object SyncObj = new object();
         public void Conectado(Jugador jugador)
         {
-            if (!jugadores.ContainsValue(CurrentCallback) && !BuscarJugadoresPorNombre(jugador.Apodo))
+            if (!Jugadores.ContainsValue(CurrentCallback) && !BuscarJugadoresPorNombre(jugador.Apodo))
             {
-                lock (syncObj)
+                lock (SyncObj)
                 {
-                    jugadores.Add(jugador, CurrentCallback);
-                    listaJugadores.Add(jugador);
+                    Jugadores.Add(jugador, CurrentCallback);
+                    ListaJugadores.Add(jugador);
 
-                    foreach (Jugador key in jugadores.Keys)
+                    foreach (Jugador key in Jugadores.Keys)
                     {
-                        IChatCallback callback = jugadores[key];
+                        IChatCallback callback = Jugadores[key];
                         try
                         {
                             //callback.actualizarJugadores(listaJugadores);
@@ -187,7 +208,7 @@ namespace ServicioConWCFJuego
                         }
                         catch
                         {
-                            jugadores.Remove(key);
+                            Jugadores.Remove(key);
 
                         }
 
@@ -201,17 +222,17 @@ namespace ServicioConWCFJuego
 
         public void Desconectado(Jugador jugador)
         {
-            foreach (Jugador c in jugadores.Keys)
+            foreach (Jugador c in Jugadores.Keys)
             {
                 if (jugador.Apodo == c.Apodo)
                 {
-                    lock (syncObj)
+                    lock (SyncObj)
                     {
-                        this.jugadores.Remove(c);
-                        this.listaJugadores.Remove(c);
-                        foreach (IChatCallback callback in jugadores.Values)
+                        this.Jugadores.Remove(c);
+                        this.ListaJugadores.Remove(c);
+                        foreach (IChatCallback callback in Jugadores.Values)
                         {
-                            callback.ActualizarJugadores(this.listaJugadores);
+                            callback.ActualizarJugadores(this.ListaJugadores);
                             callback.JugadorSeFue(jugador);
                         }
                     }
@@ -222,7 +243,7 @@ namespace ServicioConWCFJuego
 
         public bool BuscarJugadoresPorNombre(string apodo)
         {
-            foreach (Jugador c in jugadores.Keys)
+            foreach (Jugador c in Jugadores.Keys)
             {
                 if (c.Apodo == apodo)
                 {
@@ -237,8 +258,8 @@ namespace ServicioConWCFJuego
         public void EnviarMensaje(Chat mensaje)
         {
             List<IChatCallback> miembrosSala = new List<IChatCallback>();
-            if (this.listaSalas.ContainsKey(mensaje.Sala)){
-                miembrosSala = this.listaSalas[mensaje.Sala];
+            if (this.ListaSalas.ContainsKey(mensaje.Sala)){
+                miembrosSala = this.ListaSalas[mensaje.Sala];
                 foreach (IChatCallback callback in miembrosSala)
                 {
                     try
@@ -275,7 +296,7 @@ namespace ServicioConWCFJuego
         public void CrearSala(Jugador jugador)
         {
             String codigo = GenerarCodigo();
-            while (this.listaSalas.ContainsKey(codigo))
+            while (this.ListaSalas.ContainsKey(codigo))
             {
                 codigo = GenerarCodigo();
             }
@@ -284,8 +305,8 @@ namespace ServicioConWCFJuego
             listaJugadores.Add(CurrentCallback);
             List<Jugador> jugadores = new List<Jugador>();
             jugadores.Add(jugador);
-            jugadoresEnSala.Add(codigo, jugadores);
-            this.listaSalas.Add(codigo,listaJugadores);
+            JugadoresEnSala.Add(codigo, jugadores);
+            this.ListaSalas.Add(codigo,listaJugadores);
             try
             {
                 OperationContext.Current.GetCallbackChannel<IChatCallback>().RecibirCodigoSala(codigo);
@@ -319,9 +340,9 @@ namespace ServicioConWCFJuego
         {
             List<IChatCallback> listaJugador = new List<IChatCallback>();
             Jugador jugadorcontricante = new Jugador();
-            if(this.listaSalas.ContainsKey(sala))
+            if(this.ListaSalas.ContainsKey(sala) && jugador != null)
             {
-                listaJugador = this.listaSalas[sala];
+                listaJugador = this.ListaSalas[sala];
                 listaJugador.Add(CurrentCallback);
                 try
                 {
@@ -340,7 +361,7 @@ namespace ServicioConWCFJuego
                 {
                     Log(exception);
                 }
-                this.listaSalas[sala] = listaJugador;
+                this.ListaSalas[sala] = listaJugador;
             }
             else
             {
@@ -363,9 +384,9 @@ namespace ServicioConWCFJuego
         {
             Jugador jugadorContricante = new Jugador();
             List<Jugador> jugadores = new List<Jugador>();
-            if (this.jugadoresEnSala.ContainsKey(sala))
+            if (this.JugadoresEnSala.ContainsKey(sala))
             {
-                jugadores = jugadoresEnSala[sala];
+                jugadores = JugadoresEnSala[sala];
                 foreach(Jugador jugadorLista in jugadores)
                 {
                     if(jugador != jugadorLista)
@@ -382,9 +403,9 @@ namespace ServicioConWCFJuego
 
         public void TodoListo(string sala, string jugador, int numeroDeListos)
         {
-            if(this.listaSalas.ContainsKey(sala))
+            if(this.ListaSalas.ContainsKey(sala))
             {
-                List<IChatCallback> listaJugador = this.listaSalas[sala];
+                List<IChatCallback> listaJugador = this.ListaSalas[sala];
                 if (numeroDeListos == 2)
                 {    
                     foreach (IChatCallback callback in listaJugador)
@@ -434,9 +455,9 @@ namespace ServicioConWCFJuego
 
         public void CancelarTodoListo(string sala, string jugador)
         {
-            if (this.listaSalas.ContainsKey(sala))
+            if (this.ListaSalas.ContainsKey(sala))
             {
-                List<IChatCallback> listaJugadores = this.listaSalas[sala];
+                List<IChatCallback> listaJugadores = this.ListaSalas[sala];
                 foreach (IChatCallback callback in listaJugadores)
                 {
                     if (callback != CurrentCallback)
@@ -460,10 +481,10 @@ namespace ServicioConWCFJuego
 
         public void Tiro(String coordenadas, String contricante, String sala, String NombreJugador)
         {
-            if (jugadoresEnPartida.ContainsKey(contricante))
+            if (JugadoresEnPartida.ContainsKey(contricante))
             {
-                jugadoresEnPartida[NombreJugador] = CurrentCallback;
-                IChatCallback callback = jugadoresEnPartida[contricante];
+                JugadoresEnPartida[NombreJugador] = CurrentCallback;
+                IChatCallback callback = JugadoresEnPartida[contricante];
                 try
                 {
                     callback.InsertarDisparo(coordenadas);
@@ -487,11 +508,11 @@ namespace ServicioConWCFJuego
             IChatCallback callback;
             if (tiro == 1)
             {
-                callback = jugadoresEnPartida[jugador1];
+                callback = JugadoresEnPartida[jugador1];
             }
             else
             {
-                callback = jugadoresEnPartida[jugador2];
+                callback = JugadoresEnPartida[jugador2];
             }
             try
             {
@@ -514,9 +535,9 @@ namespace ServicioConWCFJuego
         public void IniciarPartida(string jugador)
         {
             bool iniciarPartida = false;
-            if (!jugadoresEnPartida.ContainsKey(jugador))
+            if (!JugadoresEnPartida.ContainsKey(jugador))
             {
-                jugadoresEnPartida.Add(jugador, CurrentCallback);
+                JugadoresEnPartida.Add(jugador, CurrentCallback);
                 iniciarPartida = true;
             }
             try
@@ -535,19 +556,19 @@ namespace ServicioConWCFJuego
 
         public void TerminarPartida(string jugador)
         {
-            if (jugadoresEnPartida.ContainsKey(jugador))
+            if (JugadoresEnPartida.ContainsKey(jugador))
             {
-                jugadoresEnPartida.Remove(jugador);
+                JugadoresEnPartida.Remove(jugador);
             }
         }
 
         public void ActualizarCallbackEnPartida(string jugador)
         {
-            if (jugadoresEnPartida.ContainsKey(jugador))
+            if (JugadoresEnPartida.ContainsKey(jugador))
             {
-                jugadoresEnPartida.Remove(jugador);
+                JugadoresEnPartida.Remove(jugador);
             }
-            jugadoresEnPartida.Add(jugador,CurrentCallback);
+            JugadoresEnPartida.Add(jugador,CurrentCallback);
             try
             {
                 CurrentCallback.ActualizarCallbackEnPartidaCallback(true);
@@ -564,10 +585,10 @@ namespace ServicioConWCFJuego
 
         public void PartidaGanada(string janador, string jugadorParaNotificar)
         {
-            if (jugadoresEnPartida.ContainsKey(jugadorParaNotificar))
+            if (JugadoresEnPartida.ContainsKey(jugadorParaNotificar))
             {
                 IChatCallback callback;
-                callback = jugadoresEnPartida[jugadorParaNotificar];
+                callback = JugadoresEnPartida[jugadorParaNotificar];
                 try
                 {
                     callback.PartidaGanadaCallback(janador);
@@ -582,8 +603,8 @@ namespace ServicioConWCFJuego
                 }
                 finally
                 {
-                    jugadoresEnPartida.Remove(janador);
-                    jugadoresEnPartida.Remove(jugadorParaNotificar);
+                    JugadoresEnPartida.Remove(janador);
+                    JugadoresEnPartida.Remove(jugadorParaNotificar);
                 }
             }
         }
@@ -593,9 +614,9 @@ namespace ServicioConWCFJuego
         /// <param name="contricante">El nombre del contricante</param>
         public void TiroCertero(string coordenadas, string contricante)
         {
-            if (jugadoresEnPartida.ContainsKey(contricante))
+            if (JugadoresEnPartida.ContainsKey(contricante))
             {
-                IChatCallback callback = jugadoresEnPartida[contricante];
+                IChatCallback callback = JugadoresEnPartida[contricante];
                 try
                 {
                     callback.TiroCerteroCallback(coordenadas);
@@ -615,16 +636,16 @@ namespace ServicioConWCFJuego
         /// <param name="nombreJugador">El nombre del jugador.</param>
         public void CerrarJuego(string nombreJugador)
         {
-            if (this.jugadoresConectados.ContainsKey(nombreJugador))
+            if (this.JugadoresConectados.ContainsKey(nombreJugador))
             {
-                this.jugadoresConectados.Remove(nombreJugador);
+                this.JugadoresConectados.Remove(nombreJugador);
             }
-            if (this.jugadores.ContainsValue(CurrentCallback))
+            if (this.Jugadores.ContainsValue(CurrentCallback))
             {
                 try
                 {
-                    var item = this.jugadores.First(x => x.Value == CurrentCallback);
-                    this.jugadores.Remove(item.Key);
+                    var item = this.Jugadores.First(x => x.Value == CurrentCallback);
+                    this.Jugadores.Remove(item.Key);
                 }
                 catch(ArgumentNullException e)
                 {
@@ -644,9 +665,34 @@ namespace ServicioConWCFJuego
         /// <param name="codigoSala">El código de la sala a eliminar</param>
         public void EliminarSala(string codigoSala)
         {
-            if (listaSalas.ContainsKey(codigoSala))
+            if (ListaSalas.ContainsKey(codigoSala))
             {
-                listaSalas.Remove(codigoSala);
+                List<IChatCallback> jugadores = new List<IChatCallback>();
+                jugadores = ListaSalas[codigoSala];
+                if (jugadores != null && jugadores.Count == 1)
+                {
+                    ListaSalas.Remove(codigoSala);
+                }
+                else if (jugadores != null && jugadores.Count > 1)
+                {
+                    jugadores.Remove(CurrentCallback);
+                    foreach (IChatCallback callback in jugadores)
+                    {
+                        try
+                        {
+                            callback.NotificarAbandorarSala();
+                        }
+                        catch (TimeoutException exception)
+                        {
+                            Log(exception);
+                        }
+                        catch (CommunicationException exception)
+                        {
+                            Log(exception);
+                        }
+                    }
+                    ListaSalas[codigoSala] = jugadores;
+                }
             }
         }
 
@@ -654,10 +700,10 @@ namespace ServicioConWCFJuego
         /// <param name="sala">El código de la sala</param>
         public void ExpulsarDeSala(string sala)
         {
-            if (this.listaSalas.ContainsKey(sala))
+            if (this.ListaSalas.ContainsKey(sala))
             {
                 List<IChatCallback> listaJugador = new List<IChatCallback>();
-                listaJugador = this.listaSalas[sala];
+                listaJugador = this.ListaSalas[sala];
                 foreach (IChatCallback callback in listaJugador)
                 {
                     if(callback != CurrentCallback)
@@ -677,7 +723,7 @@ namespace ServicioConWCFJuego
                         }
                     }
                 }
-                this.listaSalas[sala] = listaJugador;
+                this.ListaSalas[sala] = listaJugador;
             }
         }
     }

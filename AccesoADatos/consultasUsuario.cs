@@ -210,5 +210,33 @@ namespace AccesoADatos
             }
             return agregado;
         }
+
+        public bool EliminarAmigo(string apodoJugador, string apodoAmigo)
+        {
+            bool eliminar = false;
+            using (var contexto = new BatallaNavalDbEntities())
+            {
+                try
+                {
+                    Jugadores jugador = contexto.Jugadores.Where(x => x.Apodo == apodoJugador).FirstOrDefault();
+                    Jugadores amigo = contexto.Jugadores.Where(x => x.Apodo == apodoAmigo).FirstOrDefault();
+                    if (jugador != null && amigo != null)
+                    {
+                        contexto.Jugadores.Attach(amigo);
+                        jugador.Amigos.Remove(amigo);
+                        contexto.Jugadores.Attach(jugador);
+                        contexto.SaveChanges();
+                        eliminar = true;
+                    }
+                }
+                catch (EntityException excepcion)
+                {
+                    eliminar = true;
+                    Trace.WriteLine(excepcion.Message + excepcion.Source);
+                    Trace.Flush();
+                }
+            }
+            return eliminar;
+        }
     }
 }
