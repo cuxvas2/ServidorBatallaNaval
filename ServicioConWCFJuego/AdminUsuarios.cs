@@ -702,8 +702,7 @@ namespace ServicioConWCFJuego
         {
             if (this.ListaSalas.ContainsKey(sala))
             {
-                List<IChatCallback> listaJugador = new List<IChatCallback>();
-                listaJugador = this.ListaSalas[sala];
+                List<IChatCallback> listaJugador = this.ListaSalas[sala];
                 foreach (IChatCallback callback in listaJugador)
                 {
                     if(callback != CurrentCallback)
