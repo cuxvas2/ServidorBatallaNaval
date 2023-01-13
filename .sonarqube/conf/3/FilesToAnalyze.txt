@@ -1,0 +1,4 @@
+﻿C:\Users\omarg\source\repos\ServidorBatallaNaval\ServicioConWCFJuego\IAdminiSocial.cs
+C:\Users\omarg\source\repos\ServidorBatallaNaval\ServicioConWCFJuego\IAdminiUsuarios.cs
+C:\Users\omarg\source\repos\ServidorBatallaNaval\ServicioConWCFJuego\Properties\AssemblyInfo.cs
+C:\Users\omarg\source\repos\ServidorBatallaNaval\ServicioConWCFJuego\AdminUsuarios.cs

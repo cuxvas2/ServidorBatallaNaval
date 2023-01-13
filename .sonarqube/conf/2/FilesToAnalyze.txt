@@ -1,0 +1,2 @@
+﻿C:\Users\omarg\source\repos\ServidorBatallaNaval\Seguridad\UtilidadesSeguridad.cs
+C:\Users\omarg\source\repos\ServidorBatallaNaval\Seguridad\Properties\AssemblyInfo.cs

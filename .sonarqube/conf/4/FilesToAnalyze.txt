@@ -1,0 +1,4 @@
+﻿C:\Users\omarg\source\repos\ServidorBatallaNaval\ConsolaServidor\Program.cs
+C:\Users\omarg\source\repos\ServidorBatallaNaval\ConsolaServidor\Properties\AssemblyInfo.cs
+C:\Users\omarg\source\repos\ServidorBatallaNaval\ConsolaServidor\App.config
+C:\Users\omarg\source\repos\ServidorBatallaNaval\ConsolaServidor\packages.config

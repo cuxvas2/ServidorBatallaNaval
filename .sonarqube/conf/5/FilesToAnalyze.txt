@@ -1,0 +1,13 @@
+﻿C:\Users\omarg\source\repos\ServidorBatallaNaval\ServicioConWCFJuegoTests1\AdminUsuariosTests.cs
+C:\Users\omarg\source\repos\ServidorBatallaNaval\ServicioConWCFJuegoTests1\Properties\AssemblyInfo.cs
+C:\Users\omarg\source\repos\ServidorBatallaNaval\packages\MSTest.TestAdapter.2.2.7\build\_common\es\Microsoft.TestPlatform.AdapterUtilities.resources.dll
+C:\Users\omarg\source\repos\ServidorBatallaNaval\packages\MSTest.TestAdapter.2.2.7\build\_common\es\Microsoft.TestPlatform.CoreUtilities.resources.dll
+C:\Users\omarg\source\repos\ServidorBatallaNaval\packages\MSTest.TestAdapter.2.2.7\build\_common\es\Microsoft.VisualStudio.TestPlatform.MSTest.TestAdapter.resources.dll
+C:\Users\omarg\source\repos\ServidorBatallaNaval\packages\MSTest.TestAdapter.2.2.7\build\_common\es\Microsoft.VisualStudio.TestPlatform.MSTestAdapter.PlatformServices.resources.dll
+C:\Users\omarg\source\repos\ServidorBatallaNaval\packages\MSTest.TestAdapter.2.2.7\build\_common\es\Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+C:\Users\omarg\source\repos\ServidorBatallaNaval\packages\MSTest.TestAdapter.2.2.7\build\_common\es\Microsoft.VisualStudio.TestPlatform.TestFramework.resources.dll
+C:\Users\omarg\source\repos\ServidorBatallaNaval\packages\MSTest.TestAdapter.2.2.7\build\_common\Microsoft.VisualStudio.TestPlatform.MSTest.TestAdapter.dll
+C:\Users\omarg\source\repos\ServidorBatallaNaval\packages\MSTest.TestAdapter.2.2.7\build\_common\Microsoft.VisualStudio.TestPlatform.MSTestAdapter.PlatformServices.Interface.dll
+C:\Users\omarg\source\repos\ServidorBatallaNaval\packages\MSTest.TestAdapter.2.2.7\build\_common\Microsoft.VisualStudio.TestPlatform.MSTestAdapter.PlatformServices.dll
+C:\Users\omarg\source\repos\ServidorBatallaNaval\packages\MSTest.TestAdapter.2.2.7\build\net45\Microsoft.TestPlatform.AdapterUtilities.dll
+C:\Users\omarg\source\repos\ServidorBatallaNaval\ServicioConWCFJuegoTests1\packages.config

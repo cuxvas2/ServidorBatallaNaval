@@ -1,0 +1,11 @@
+﻿C:\Users\omarg\source\repos\ServidorBatallaNaval\AccesoADatos\ConsultasUsuario.cs
+C:\Users\omarg\source\repos\ServidorBatallaNaval\AccesoADatos\Jugadores.cs
+C:\Users\omarg\source\repos\ServidorBatallaNaval\AccesoADatos\Properties\AssemblyInfo.cs
+C:\Users\omarg\source\repos\ServidorBatallaNaval\AccesoADatos\ModeloDeDatosADO.Context.tt
+C:\Users\omarg\source\repos\ServidorBatallaNaval\AccesoADatos\ModeloDeDatosADO.edmx.sql
+C:\Users\omarg\source\repos\ServidorBatallaNaval\AccesoADatos\ModeloDeDatosADO.tt
+C:\Users\omarg\source\repos\ServidorBatallaNaval\AccesoADatos\ModeloDeDatosADO.edmx
+C:\Users\omarg\source\repos\ServidorBatallaNaval\.editorconfig
+C:\Users\omarg\source\repos\ServidorBatallaNaval\AccesoADatos\App.config
+C:\Users\omarg\source\repos\ServidorBatallaNaval\AccesoADatos\ModeloDeDatosADO.edmx.diagram
+C:\Users\omarg\source\repos\ServidorBatallaNaval\AccesoADatos\packages.config

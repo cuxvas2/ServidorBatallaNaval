@@ -1,0 +1,2 @@
+﻿C:\Users\omarg\source\repos\ServidorBatallaNaval\Entidades\Properties\AssemblyInfo.cs
+C:\Users\omarg\source\repos\ServidorBatallaNaval\Entidades\Entidades.cs
