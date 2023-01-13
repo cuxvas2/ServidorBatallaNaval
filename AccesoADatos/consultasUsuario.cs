@@ -174,7 +174,6 @@ namespace AccesoADatos
                 if (jugadores_db != null)
                 {
                     List<Jugadores> amigosJugadores = jugadores_db.Amigos.ToList();
-                    Jugador jugador1 = new Jugador();
                     foreach(Jugadores jugadores in amigosJugadores)
                     {
                         amigos.Add(jugadores.Apodo);

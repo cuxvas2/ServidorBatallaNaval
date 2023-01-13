@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ConsolaServidor
 {
-    class Program
+    static class Program
     {
         static void Main(string[] args)
         {

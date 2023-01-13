@@ -6,6 +6,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.ServiceModel;
+using System.Text;
 
 namespace ServicioConWCFJuego
 {
@@ -203,7 +204,6 @@ namespace ServicioConWCFJuego
                         IChatCallback callback = Jugadores[key];
                         try
                         {
-                            //callback.actualizarJugadores(listaJugadores);
                             callback.UnionDeJugador(jugador);
                         }
                         catch
@@ -257,7 +257,7 @@ namespace ServicioConWCFJuego
         /// <param name="mensaje">El mensaje que se quiere enviar</param>
         public void EnviarMensaje(Chat mensaje)
         {
-            List<IChatCallback> miembrosSala = new List<IChatCallback>();
+            List<IChatCallback> miembrosSala;
             if (this.ListaSalas.ContainsKey(mensaje.Sala)){
                 miembrosSala = this.ListaSalas[mensaje.Sala];
                 foreach (IChatCallback callback in miembrosSala)
@@ -301,12 +301,12 @@ namespace ServicioConWCFJuego
                 codigo = GenerarCodigo();
             }
 
-            List<IChatCallback> listaJugadores = new List<IChatCallback>();
-            listaJugadores.Add(CurrentCallback);
-            List<Jugador> jugadores = new List<Jugador>();
-            jugadores.Add(jugador);
-            JugadoresEnSala.Add(codigo, jugadores);
-            this.ListaSalas.Add(codigo,listaJugadores);
+            List<IChatCallback> listaJugadoresEnSala = new List<IChatCallback>();
+            listaJugadoresEnSala.Add(CurrentCallback);
+            List<Jugador> listaJugadores = new List<Jugador>();
+            listaJugadores.Add(jugador);
+            JugadoresEnSala.Add(codigo, listaJugadores);
+            this.ListaSalas.Add(codigo, listaJugadoresEnSala);
             try
             {
                 OperationContext.Current.GetCallbackChannel<IChatCallback>().RecibirCodigoSala(codigo);
@@ -326,14 +326,14 @@ namespace ServicioConWCFJuego
         private String GenerarCodigo()
         {
             Random r = new Random();
-            String codigo = "";
+            StringBuilder codigo = new StringBuilder("");
             for (int i = 0; i < 5; i++)
             {
                 int numero = r.Next(0, 10);
                 string numeroEnString = numero.ToString();
-                codigo += numeroEnString;
+                codigo.Append(numeroEnString);
             }
-            return codigo;
+            return codigo.ToString();
         }
 
         public void UnirseASala(string sala, Jugador jugador)
@@ -383,11 +383,11 @@ namespace ServicioConWCFJuego
         private Jugador BuscarJugadorContricanteEnSalas(string sala, Jugador jugador)
         {
             Jugador jugadorContricante = new Jugador();
-            List<Jugador> jugadores = new List<Jugador>();
+            List<Jugador> listaJugadores;
             if (this.JugadoresEnSala.ContainsKey(sala))
             {
-                jugadores = JugadoresEnSala[sala];
-                foreach(Jugador jugadorLista in jugadores)
+                listaJugadores = JugadoresEnSala[sala];
+                foreach(Jugador jugadorLista in listaJugadores)
                 {
                     if(jugador != jugadorLista)
                     {
@@ -457,8 +457,8 @@ namespace ServicioConWCFJuego
         {
             if (this.ListaSalas.ContainsKey(sala))
             {
-                List<IChatCallback> listaJugadores = this.ListaSalas[sala];
-                foreach (IChatCallback callback in listaJugadores)
+                List<IChatCallback> listaJugadoresEnSala = this.ListaSalas[sala];
+                foreach (IChatCallback callback in listaJugadoresEnSala)
                 {
                     if (callback != CurrentCallback)
                     {

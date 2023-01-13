@@ -19,16 +19,16 @@ namespace Entidades
         private int idJuego;
 
         [DataMember]
-        public int IdJugador { get { return idJugador; } set { idJugador = value; } }
+        public int IdJugador { get; set; }
 
         [DataMember]
-        public int IdJuego { get { return idJuego; } set { idJuego = value; } }
+        public int IdJuego { get; set; }
         [DataMember]
-        public String Apodo { get { return apodo; } set { apodo = value; } }
+        public String Apodo { get; set; }
         [DataMember]
-        public String CorreoElectronico  { get { return correoElectronico; } set { correoElectronico = value; } }
+        public String CorreoElectronico  { get; set; }
         [DataMember]
-        public String Contraseña { get { return contraseña; } set { contraseña = value; } }
+        public String Contraseña { get; set; }
 
 
     }
@@ -40,11 +40,11 @@ namespace Entidades
         private string remitente;
         private string mensajeEnviado;
         [DataMember]
-        public string Sala { get { return sala; } set { sala = value; } }
+        public string Sala { get; set; }
         [DataMember]
-        public string Remitente { get { return remitente; } set { remitente = value; } }
+        public string Remitente { get; set; }
         [DataMember]
-        public string MensajeEnviado { get { return mensajeEnviado; } set { mensajeEnviado = value; } }
+        public string MensajeEnviado { get; set; }
 
 
     }
